@@ -1,0 +1,33 @@
+# Server configuration
+server:
+  port: 8088
+  servlet:
+    context-path: /shopapp
+
+# Application properties
+spring:
+  application:
+    name: shopapp
+
+  # Datasource configuration
+  datasource:
+    url: jdbc:mysql://localhost:3306/shopapp_java
+    #url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/identity_service}
+    #username: ${DBMS_USERNAME}
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+
+# JWT
+jwt:
+  expiration: 3600 # seconds
+  refreshable-duration: 3600
+  secretKey: LLaTGzHHnTJRbK0+yVZq3ff/H+/JRmmoK2SCMaaJ5Eo=
