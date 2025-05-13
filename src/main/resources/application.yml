@@ -4,6 +4,9 @@ server:
   servlet:
     context-path: /shopapp
 
+api:
+  prefix: api/v1
+
 # Application properties
 spring:
   servlet:
