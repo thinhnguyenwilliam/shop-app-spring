@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,31 +56,32 @@ public class ProductController
                 return ResponseEntity.badRequest().body("Validation errors: " + String.join(", ", errors));
             }
 
-            MultipartFile file = productDTO.getFile(); // ✅ Use a file from DTO
+            List<MultipartFile> files = productDTO.getFiles();
+            files = (files != null) ? files : new ArrayList<>();
+            for(MultipartFile file : files){
+                // Skip empty files (e.g., if the user submits an empty form field)
+                if (file.isEmpty() || file.getSize() == 0) {
+                    continue;
+                }
 
-            if (file == null || file.isEmpty()) {
-                return ResponseEntity.badRequest().body("File is required.");
+                // Check file size (limit to 5MB)
+                long maxFileSize = 5L * 1024 * 1024; // 5MB
+                if (file.getSize() > maxFileSize) {
+                    return ResponseEntity.badRequest().body("File size must be less than 5MB.");
+                }
+
+                // Check a file type
+                String contentType = file.getContentType();
+                if (!isImageTypeAllowed(contentType)) {
+                    return ResponseEntity.badRequest().body("Only PNG, JPG, and JPEG images are allowed.");
+                }
+
+                // Save file
+                String savedFilename = saveFile(file);
             }
 
-            // Check file size (limit to 5MB)
-            long maxFileSize = 5L * 1024 * 1024; // 5MB
-            if (file.getSize() > maxFileSize) {
-                return ResponseEntity.badRequest().body("File size must be less than 5MB.");
-            }
+            return ResponseEntity.ok("Product received with image saved as: ");
 
-            // Check a file type
-            String contentType = file.getContentType();
-            if (!isImageTypeAllowed(contentType)) {
-                return ResponseEntity.badRequest().body("Only PNG, JPG, and JPEG images are allowed.");
-            }
-
-            // Save file
-            String savedFilename = saveFile(file);
-            return ResponseEntity.ok("Product received with image saved as: " + savedFilename);
-
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to save file: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Unexpected error: " + e.getMessage());
