@@ -141,9 +141,9 @@ CREATE TABLE order_details (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     order_id INT UNSIGNED NOT NULL,
     product_id INT UNSIGNED NOT NULL,
-    quantity INT UNSIGNED NOT NULL CHECK (quantity > 0),
-    unit_price DECIMAL(10,2) NOT NULL CHECK (unit_price >= 0),
-    total_price DECIMAL(10,2) NOT NULL CHECK (total_price >= 0),
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    number_of_products INT UNSIGNED,
+    total_money DECIMAL(10,2) NOT NULL CHECK (total_money >= 0),
     color VARCHAR(20) DEFAULT '',
 
     FOREIGN KEY (order_id) REFERENCES orders(id),
