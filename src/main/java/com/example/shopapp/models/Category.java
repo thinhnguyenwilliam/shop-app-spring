@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +24,7 @@ public class Category {
     String name;
 
     // One Category has many products
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Product> products = new ArrayList<>();
+    //@OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    //List<Product> products = new ArrayList<>();
 
 }

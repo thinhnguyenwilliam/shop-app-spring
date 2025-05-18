@@ -25,14 +25,13 @@ public class ProductDTO
 
     @Min(value = 0, message = "Product price must be greater than or equal to zero")
     @Max(value = 1000000, message = "Product price must be less than or equal to 1000000")
-    private double price;
+    private Float price;
 
 
     private String thumbnail;
     private String description;
 
-    @JsonProperty("category_id") // in DB
-    private String categoryId;
+    @JsonProperty("category_id")
+    private Integer categoryId;
 
-    private List<MultipartFile> files;
 }

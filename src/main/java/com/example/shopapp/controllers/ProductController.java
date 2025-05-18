@@ -1,7 +1,13 @@
 package com.example.shopapp.controllers;
 
 import com.example.shopapp.dtos.ProductDTO;
+import com.example.shopapp.dtos.ProductImageDTO;
+import com.example.shopapp.exceptions.InvalidParamException;
+import com.example.shopapp.models.Product;
+import com.example.shopapp.models.ProductImage;
+import com.example.shopapp.service.IProductService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +26,12 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/products")
+@RequiredArgsConstructor
 public class ProductController
 {
+    private final IProductService productService;
+
+
     @GetMapping("")
     public ResponseEntity<String> getAllProducts(
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -42,9 +52,10 @@ public class ProductController
         return ResponseEntity.ok("Chao e iu hi deleteProduct " + id);
     }
 
-    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // === 1. Create product ===
+    @PostMapping(value = "")
     public ResponseEntity<String> createProduct(
-            @Valid @ModelAttribute ProductDTO productDTO,
+            @Valid @RequestBody ProductDTO productDTO,
             BindingResult result
     ) {
         try {
@@ -56,21 +67,34 @@ public class ProductController
                 return ResponseEntity.badRequest().body("Validation errors: " + String.join(", ", errors));
             }
 
-            List<MultipartFile> files = productDTO.getFiles();
+            Product newProduct = productService.createProduct(productDTO);
+            return ResponseEntity.ok("Product created with ID: " + newProduct.getId());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Unexpected error: " + e.getMessage());
+        }
+    }
+
+    // === 2. Upload product images ===
+    @PostMapping(value = "/uploads/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> uploadImages(
+            @PathVariable("productId") Integer productId,
+            @RequestParam("files") List<MultipartFile> files
+    ) {
+        try {
             files = (files != null) ? files : new ArrayList<>();
-            for(MultipartFile file : files){
-                // Skip empty files (e.g., if the user submits an empty form field)
+            List<ProductImage> productImages = new ArrayList<>();
+
+            for (MultipartFile file : files) {
                 if (file.isEmpty() || file.getSize() == 0) {
                     continue;
                 }
 
-                // Check file size (limit to 5MB)
                 long maxFileSize = 5L * 1024 * 1024; // 5MB
                 if (file.getSize() > maxFileSize) {
                     return ResponseEntity.badRequest().body("File size must be less than 5MB.");
                 }
 
-                // Check a file type
                 String contentType = file.getContentType();
                 if (!isImageTypeAllowed(contentType)) {
                     return ResponseEntity.badRequest().body("Only PNG, JPG, and JPEG images are allowed.");
@@ -78,15 +102,28 @@ public class ProductController
 
                 // Save file
                 String savedFilename = saveFile(file);
+
+                // Save image entry to DB
+                ProductImage savedImage = productService.createProductImage(
+                        productId,
+                        ProductImageDTO.builder()
+                                .productId(productId)
+                                .imageUrl(savedFilename)
+                                .build()
+                );
+
+                productImages.add(savedImage);
             }
 
-            return ResponseEntity.ok("Product received with image saved as: ");
+            return ResponseEntity.ok(productImages);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Unexpected error: " + e.getMessage());
         }
     }
+
+
 
 
     // Helper method

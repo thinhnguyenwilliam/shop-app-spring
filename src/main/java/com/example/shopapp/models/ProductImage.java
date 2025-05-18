@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "product_images")
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)

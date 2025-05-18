@@ -1,5 +1,6 @@
 package com.example.shopapp.service;
 
+import com.example.shopapp.dtos.CategoryDTO;
 import com.example.shopapp.models.Category;
 import com.example.shopapp.repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +14,12 @@ public class CategoryService implements ICategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public Category createCategory(Category category) {
-        return categoryRepository.save(category);
+    public void createCategory(CategoryDTO categoryDTO) {
+        Category newCategory = Category.builder()
+                .name(categoryDTO.getName())
+                .build();
+
+        categoryRepository.save(newCategory);
     }
 
     @Override
@@ -29,9 +34,9 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public Category updateCategory(Integer id, Category category) {
+    public Category updateCategory(Integer id, CategoryDTO categoryDTO) {
         Category existingCategory = getCategoryById(id);
-        existingCategory.setName(category.getName());
+        existingCategory.setName(categoryDTO.getName());
 
         return categoryRepository.save(existingCategory);
     }
