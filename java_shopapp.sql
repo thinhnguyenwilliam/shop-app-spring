@@ -1,5 +1,7 @@
 CREATE DATABASE shopapp_java  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE shopapp_java;
+DROP DATABASE shopapp_java;
+
 
 CREATE TABLE users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -65,6 +67,7 @@ CREATE TABLE categories (
     INDEX idx_category_name (name)
 );
 
+
 CREATE TABLE products (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150),
@@ -80,6 +83,7 @@ CREATE TABLE products (
     INDEX idx_product_name (name),
     INDEX idx_product_slug (slug)
 );
+
 
 CREATE TABLE product_images (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

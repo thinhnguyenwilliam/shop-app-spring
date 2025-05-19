@@ -9,9 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 
 @Setter
 @Getter
@@ -30,6 +28,8 @@ public class ProductDTO
 
     private String thumbnail;
     private String description;
+
+    private String slug;
 
     @JsonProperty("category_id")
     private Integer categoryId;

@@ -2,12 +2,17 @@ package com.example.shopapp.controllers;
 
 import com.example.shopapp.dtos.ProductDTO;
 import com.example.shopapp.dtos.ProductImageDTO;
+import com.example.shopapp.dtos.responses.ProductListResponse;
+import com.example.shopapp.dtos.responses.ProductResponse;
 import com.example.shopapp.exceptions.InvalidParamException;
 import com.example.shopapp.models.Product;
 import com.example.shopapp.models.ProductImage;
 import com.example.shopapp.service.IProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -33,13 +36,28 @@ public class ProductController
 
 
     @GetMapping("")
-    public ResponseEntity<String> getAllProducts(
+    public ResponseEntity<ProductListResponse> getAllProducts(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "limit", defaultValue = "10") int limit
-    )
-    {
-        return ResponseEntity.ok(String.format("Chao e iu hi getAllProducts page %d limit %d", page, limit));
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createdAt").descending());
+        Page<ProductResponse> products = productService.getAllProducts(pageRequest);
+
+        ProductListResponse response = ProductListResponse.builder()
+                .message("Success")
+                .page(page)
+                .limit(limit)
+                .totalPages(products.getTotalPages())
+                .totalItems(products.getTotalElements())
+                .products(products.getContent())
+                .build();
+
+        return ResponseEntity.ok(response);
     }
+
+
+
+
 
     @GetMapping("/{productId}")
     public ResponseEntity<String> getProductById(@PathVariable("productId") String id)
@@ -53,8 +71,8 @@ public class ProductController
     }
 
     // === 1. Create product ===
-    @PostMapping(value = "")
-    public ResponseEntity<String> createProduct(
+    @PostMapping()
+    public ResponseEntity<Object> createProduct(
             @Valid @RequestBody ProductDTO productDTO,
             BindingResult result
     ) {
@@ -64,11 +82,11 @@ public class ProductController
                         .stream()
                         .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                         .toList();
-                return ResponseEntity.badRequest().body("Validation errors: " + String.join(", ", errors));
+                return ResponseEntity.badRequest().body(errors);
             }
 
             Product newProduct = productService.createProduct(productDTO);
-            return ResponseEntity.ok("Product created with ID: " + newProduct.getId());
+            return ResponseEntity.ok(newProduct);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Unexpected error: " + e.getMessage());

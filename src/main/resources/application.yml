@@ -9,6 +9,10 @@ api:
 
 # Application properties
 spring:
+#  jackson:
+#    date-format: yyyy-MM-dd HH:mm:ss
+#    time-zone: UTC
+
   servlet:
     multipart:
       max-file-size: 10MB

@@ -2,6 +2,7 @@ package com.example.shopapp.service;
 
 import com.example.shopapp.dtos.ProductDTO;
 import com.example.shopapp.dtos.ProductImageDTO;
+import com.example.shopapp.dtos.responses.ProductResponse;
 import com.example.shopapp.exceptions.InvalidParamException;
 import com.example.shopapp.models.Product;
 import com.example.shopapp.models.ProductImage;
@@ -13,7 +14,7 @@ public interface IProductService
     Product createProduct(ProductDTO productDTO);
     Product getProductById(Integer id);
 
-    Page<Product> getAllProducts(PageRequest pageRequest);
+    Page<ProductResponse> getAllProducts(PageRequest pageRequest);
     Product updateProduct(Integer id, ProductDTO productDTO);
     void deleteProductById(Integer id);
     Boolean existsByName(String name);

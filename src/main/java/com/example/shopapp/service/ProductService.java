@@ -2,6 +2,7 @@ package com.example.shopapp.service;
 
 import com.example.shopapp.dtos.ProductDTO;
 import com.example.shopapp.dtos.ProductImageDTO;
+import com.example.shopapp.dtos.responses.ProductResponse;
 import com.example.shopapp.exceptions.InvalidParamException;
 import com.example.shopapp.models.Category;
 import com.example.shopapp.models.Product;
@@ -38,6 +39,7 @@ public class ProductService implements IProductService
                 .thumbnail(productDTO.getThumbnail()) // Assuming this is handled by file upload elsewhere
                 .description(productDTO.getDescription())
                 .category(category)
+                .slug(productDTO.getSlug() != null ? productDTO.getSlug() : productDTO.getName().toLowerCase().replace(" ", "-"))
                 .build();
 
         // Step 3: Save a product
@@ -52,9 +54,22 @@ public class ProductService implements IProductService
     }
 
     @Override
-    public Page<Product> getAllProducts(PageRequest pageRequest) {
-        return productRepository.findAll(pageRequest);
+    public Page<ProductResponse> getAllProducts(PageRequest pageRequest) {
+        Page<Product> productPage = productRepository.findAll(pageRequest);
+
+        return productPage.map(product -> ProductResponse.builder()
+                .name(product.getName())
+                .price(product.getPrice())
+                .thumbnail(product.getThumbnail())
+                .description(product.getDescription())
+                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
+                .createdAt(product.getCreatedAt())
+                .updatedAt(product.getUpdatedAt())
+                .build()
+        );
     }
+
+
 
     @Override
     public Product updateProduct(Integer id, ProductDTO productDTO) {
@@ -99,7 +114,7 @@ public class ProductService implements IProductService
 
         // Check the current number of images for the product
         int size = productImageRepository.findAllByProductId(productId).size();
-        if (size >= 5) {
+        if (size >= ProductImage.MAXIMUM_IMAGES_PER_PRODUCT) {
             throw new InvalidParamException("Product can have a maximum of 5 images");
         }
 
