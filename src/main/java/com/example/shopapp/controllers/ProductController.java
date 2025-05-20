@@ -4,7 +4,6 @@ import com.example.shopapp.dtos.ProductDTO;
 import com.example.shopapp.dtos.ProductImageDTO;
 import com.example.shopapp.dtos.responses.ProductListResponse;
 import com.example.shopapp.dtos.responses.ProductResponse;
-import com.example.shopapp.exceptions.InvalidParamException;
 import com.example.shopapp.models.Product;
 import com.example.shopapp.models.ProductImage;
 import com.example.shopapp.service.IProductService;
@@ -55,20 +54,27 @@ public class ProductController
         return ResponseEntity.ok(response);
     }
 
-
-
-
-
     @GetMapping("/{productId}")
-    public ResponseEntity<String> getProductById(@PathVariable("productId") String id)
+    public ResponseEntity<Object> getProductById(@PathVariable("productId") Integer id)
     {
-        return ResponseEntity.ok("Chao e iu hi getProductById " + id);
+        Product existingProduct= productService.getProductById(id);
+        return ResponseEntity.ok(ProductResponse.fromProduct(existingProduct));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable String id) {
+    public ResponseEntity<String> deleteProduct(@PathVariable Integer id) {
+        productService.deleteProductById(id);
         return ResponseEntity.ok("Chao e iu hi deleteProduct " + id);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateProduct(
+            @PathVariable Integer id,
+            @Valid @RequestBody ProductDTO productDTO
+    ) {
+        return ResponseEntity.ok(productService.updateProduct(id, productDTO));
+    }
+
 
     // === 1. Create product ===
     @PostMapping()
@@ -140,9 +146,6 @@ public class ProductController
                     .body("Unexpected error: " + e.getMessage());
         }
     }
-
-
-
 
     // Helper method
     private boolean isImageTypeAllowed(String contentType) {

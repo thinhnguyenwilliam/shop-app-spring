@@ -13,7 +13,9 @@ import com.example.shopapp.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -50,43 +52,36 @@ public class ProductService implements IProductService
     @Override
     public Product getProductById(Integer id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid product ID: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with ID: " + id));
     }
 
     @Override
     public Page<ProductResponse> getAllProducts(PageRequest pageRequest) {
         Page<Product> productPage = productRepository.findAll(pageRequest);
-
-        return productPage.map(product -> ProductResponse.builder()
-                .name(product.getName())
-                .price(product.getPrice())
-                .thumbnail(product.getThumbnail())
-                .description(product.getDescription())
-                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
-                .createdAt(product.getCreatedAt())
-                .updatedAt(product.getUpdatedAt())
-                .build()
-        );
+        return productPage.map(ProductResponse::fromProduct);
     }
 
 
-
     @Override
-    public Product updateProduct(Integer id, ProductDTO productDTO) {
+    public ProductResponse updateProduct(Integer id, ProductDTO productDTO) {
         Product existingProduct = getProductById(id);
-        if(existingProduct != null)
-        {
+        if (existingProduct != null) {
             Category existingCategory = categoryRepository.findById(productDTO.getCategoryId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid category ID: " + productDTO.getCategoryId()));
+
             existingProduct.setName(productDTO.getName());
             existingProduct.setPrice(productDTO.getPrice());
             existingProduct.setThumbnail(productDTO.getThumbnail());
             existingProduct.setDescription(productDTO.getDescription());
             existingProduct.setCategory(existingCategory);
-            return productRepository.save(existingProduct);
+
+            Product savedProduct = productRepository.save(existingProduct);
+            return ProductResponse.fromProduct(savedProduct);
         }
-        return null;
+
+        throw new IllegalArgumentException("Product not found with ID: " + id);
     }
+
 
     @Override
     public void deleteProductById(Integer id) {

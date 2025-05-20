@@ -15,7 +15,7 @@ public interface IProductService
     Product getProductById(Integer id);
 
     Page<ProductResponse> getAllProducts(PageRequest pageRequest);
-    Product updateProduct(Integer id, ProductDTO productDTO);
+    ProductResponse updateProduct(Integer id, ProductDTO productDTO);
     void deleteProductById(Integer id);
     Boolean existsByName(String name);
 
