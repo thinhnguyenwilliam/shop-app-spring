@@ -1,6 +1,6 @@
 package com.example.shopapp.service;
 
-import com.example.shopapp.dtos.UserDTO;
+import com.example.shopapp.dtos.request.UserDTO;
 import com.example.shopapp.exceptions.DataNotFoundException;
 
 public interface IUserService {

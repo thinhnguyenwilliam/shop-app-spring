@@ -1,7 +1,12 @@
 package com.example.shopapp.controllers;
 
-import com.example.shopapp.dtos.OrderDTO;
+import com.example.shopapp.dtos.request.OrderDTO;
+import com.example.shopapp.dtos.responses.OrderResponse;
+import com.example.shopapp.models.Order;
+import com.example.shopapp.service.IOrderService;
+import com.example.shopapp.service.IProductService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +15,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("${api.prefix}/orders")
+@RequiredArgsConstructor
 public class OrderController {
+
+    private final IOrderService orderService;
+
 
     @PostMapping("")
     public ResponseEntity<Object> createOrder(
@@ -26,23 +35,35 @@ public class OrderController {
                         .toList();
                 return ResponseEntity.badRequest().body("Validation errors: " + String.join(", ", errors));
             }
-            return ResponseEntity.ok("Order success");
+            OrderResponse orderResponse = orderService.createOrder(orderDTO);
+            return ResponseEntity.ok(orderResponse);
         }catch(Exception e){
             return ResponseEntity.badRequest().body("Order failed");
         }
     }
 
-    @GetMapping("/{user_id}")
-    public ResponseEntity<String> getOrders(@Valid @PathVariable("user_id") Integer userId) {
-        return ResponseEntity.ok("Chao e iu hi getOrdersByUserId " + userId);
+    // 1 userID has many orders
+    @GetMapping("/user/{user_id}")
+    public ResponseEntity<Object> getOrders(@Valid @PathVariable("user_id") Integer userId)
+    {
+        List<Order> orders= orderService.findByUserId(userId);
+        return ResponseEntity.ok(orders);
     }
 
-    @PutMapping("/{user_id}")
-    public ResponseEntity<String> updateOrder(
-            @PathVariable("user_id") Integer userId,
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getOrder(@Valid @PathVariable("id") Integer id)
+    {
+        Order existingOrder= orderService.getOrderById(id);
+        return ResponseEntity.ok(existingOrder);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateOrder(
+            @PathVariable("id") Integer id,
             @Valid @RequestBody OrderDTO orderDTO
     ) {
-        return ResponseEntity.ok("Update received for user ID: " + userId);
+        Order order = orderService.updateOrder(id, orderDTO);
+        return ResponseEntity.ok(order);
     }
 
     @DeleteMapping("/{id}")
@@ -51,6 +72,7 @@ public class OrderController {
             @PathVariable("id") Integer id
     ) {
         // a softly delete
+        orderService.deleteOrderById(id);
         return ResponseEntity.ok("Delete received : " + id);
     }
 }

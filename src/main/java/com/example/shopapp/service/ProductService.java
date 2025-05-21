@@ -1,7 +1,7 @@
 package com.example.shopapp.service;
 
-import com.example.shopapp.dtos.ProductDTO;
-import com.example.shopapp.dtos.ProductImageDTO;
+import com.example.shopapp.dtos.request.ProductDTO;
+import com.example.shopapp.dtos.request.ProductImageDTO;
 import com.example.shopapp.dtos.responses.ProductResponse;
 import com.example.shopapp.exceptions.InvalidParamException;
 import com.example.shopapp.models.Category;

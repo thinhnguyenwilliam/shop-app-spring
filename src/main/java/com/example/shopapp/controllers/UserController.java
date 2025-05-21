@@ -1,6 +1,6 @@
 package com.example.shopapp.controllers;
-import com.example.shopapp.dtos.UserDTO;
-import com.example.shopapp.dtos.UserLoginDTO;
+import com.example.shopapp.dtos.request.UserDTO;
+import com.example.shopapp.dtos.request.UserLoginDTO;
 import com.example.shopapp.service.IUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

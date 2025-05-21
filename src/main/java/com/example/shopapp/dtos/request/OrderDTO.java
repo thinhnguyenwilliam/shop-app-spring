@@ -1,4 +1,4 @@
-package com.example.shopapp.dtos;
+package com.example.shopapp.dtos.request;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.Date;
 
 @Getter
 @Setter
@@ -45,4 +47,7 @@ public class OrderDTO
 
     @JsonProperty("payment_method")
     String paymentMethod;
+
+    @JsonProperty("shipping_date")
+    Date shippingDate;
 }

@@ -111,6 +111,17 @@ ADD COLUMN role_id INT UNSIGNED,
 ADD FOREIGN KEY (role_id) REFERENCES roles(id);
 
 
+INSERT INTO users (
+    fullname, phone_number, address, password, date_of_birth, email
+) VALUES
+('Alice Smith', '1234567890', '123 Main St', 'pass123', '1995-05-15', 'alice@example.com'),
+('Bob Johnson', '2345678901', '456 Elm St', 'secure456', '1990-03-22', 'bob@example.com'),
+('Charlie Brown', '3456789012', '789 Oak Ave', 'charlie789', '1988-07-30', 'charlie@example.com'),
+('Diana Prince', '4567890123', '1600 Hero Ln', 'wonderpass', '1992-10-25', 'diana@example.com'),
+('Evan Wright', '5678901234', '321 Maple Rd', 'evansecure', '1999-12-01', 'evan@example.com');
+
+
+
 CREATE TABLE orders (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNSIGNED,

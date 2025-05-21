@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -40,7 +39,7 @@ public class Order {
     String note;
 
     @Column(name = "order_date")
-    LocalDateTime orderDate;
+    Date orderDate;
 
     @Column(name = "status")
     String status;

@@ -1,4 +1,4 @@
-package com.example.shopapp.dtos;
+package com.example.shopapp.dtos.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
