@@ -21,7 +21,7 @@ public class WebSecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()  // Public endpoints
+                        .requestMatchers("**").permitAll()  // Public endpoints
                         .anyRequest().authenticated()                 // Others require authentication
                 )
 //                .sessionManagement(session -> session

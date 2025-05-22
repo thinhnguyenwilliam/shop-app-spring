@@ -1,0 +1,76 @@
+package com.example.shopapp.components;
+
+import com.example.shopapp.models.User;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.security.Key;
+import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+@Component
+@RequiredArgsConstructor
+public class JwtTokenUtil {
+
+    @Value("${jwt.expiration}")
+    private int expiration; // in seconds
+
+    @Value("${jwt.secretKey}")
+    private String secretKey;
+
+    public String generateToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("phoneNumber", user.getPhoneNumber());
+
+        try {
+            return Jwts.builder()
+                    .setClaims(claims)
+                    .setSubject(user.getPhoneNumber())
+                    .setIssuedAt(new Date(System.currentTimeMillis()))
+                    .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000L))
+                    .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                    .compact();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Key getSignInKey() {
+        byte[] keyBytes = Base64.getDecoder().decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    // Extract all claims from a token
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSignInKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    // Extract a specific claim using a resolver function
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    public boolean isTokenExpired(String token) {
+        // Extract expiration date from token
+        Date expirationDate = extractClaim(token, Claims::getExpiration);
+
+        // Check if the expiration date is before now
+        return expirationDate.before(new Date());
+    }
+
+
+}

@@ -40,7 +40,7 @@ public class UserController {
 
             return ResponseEntity.ok("Register success");
         }catch(Exception e){
-            return ResponseEntity.badRequest().body("Register failed");
+            return ResponseEntity.badRequest().body("Register failed: " + e.getMessage());
         }
     }
 
@@ -48,7 +48,7 @@ public class UserController {
     public ResponseEntity<String> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
         String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
 
-        return ResponseEntity.ok("Some Token");
+        return ResponseEntity.ok(token);
     }
 
 }

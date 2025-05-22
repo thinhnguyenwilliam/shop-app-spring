@@ -24,6 +24,7 @@ public class UserDTO {
     String phoneNumber;
 
     String address;
+    String email;
 
     @NotBlank(message = "Password must not be blank")
     String password;

@@ -15,9 +15,7 @@ CREATE TABLE users (
     date_of_birth DATE,
     facebook_account_id INT DEFAULT 0,
     google_account_id INT DEFAULT 0,
-	email VARCHAR(100) NOT NULL UNIQUE DEFAULT '',
-
-    INDEX idx_users_email (email)
+	email VARCHAR(100) DEFAULT ''
 );
 ALTER TABLE users
 ADD COLUMN retype_password VARCHAR(255) NOT NULL DEFAULT '';
@@ -34,10 +32,7 @@ CREATE TABLE tokens (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    
-    INDEX idx_token_user (user_id),
-    INDEX idx_token_value (token)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 
@@ -51,10 +46,7 @@ CREATE TABLE social_accounts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (user_id) REFERENCES users(id),
-
-    INDEX idx_social_user (user_id),
-    INDEX idx_social_provider (provider)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE categories (
@@ -79,9 +71,7 @@ CREATE TABLE products (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (category_id) REFERENCES categories(id),
-    INDEX idx_product_name (name),
-    INDEX idx_product_slug (slug)
+    FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
 
@@ -101,10 +91,17 @@ CREATE TABLE roles (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE,           -- e.g., 'admin', 'user', 'staff'
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    INDEX idx_role_name (name)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+INSERT INTO roles (name) VALUES
+('admin'),
+('user'),
+('staff'),
+('manager'),
+('receptionist'),
+('therapist');
+
+
 
 ALTER TABLE users
 ADD COLUMN role_id INT UNSIGNED,

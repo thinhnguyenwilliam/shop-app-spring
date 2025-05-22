@@ -28,6 +28,8 @@ public class User extends BaseEntity {
     @Column(name = "address", length = 200)
     String address;
 
+    String email;
+
     @Column(name = "password", length = 200)
     String password;
 
