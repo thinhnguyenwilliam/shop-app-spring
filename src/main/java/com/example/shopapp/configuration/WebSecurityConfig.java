@@ -1,6 +1,6 @@
 package com.example.shopapp.configuration;
 
-//import com.example.shopapp.security.JwtAuthenticationFilter;
+import com.example.shopapp.filters.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,12 +8,13 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    //private final JwtAuthenticationFilter jwtAuthFilter;
+    private final JwtTokenFilter jwtTokenFilter;
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
@@ -28,7 +29,7 @@ public class WebSecurityConfig {
 //                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 //                )
 //                .authenticationProvider(authenticationProvider)
-                //.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
         ;
 
         return http.build();
