@@ -94,13 +94,9 @@ CREATE TABLE roles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 INSERT INTO roles (name) VALUES
-('admin'),
-('user'),
-('staff'),
-('manager'),
-('receptionist'),
-('therapist');
-
+('ADMIN'),
+('USER'),
+('STAFF');
 
 
 ALTER TABLE users

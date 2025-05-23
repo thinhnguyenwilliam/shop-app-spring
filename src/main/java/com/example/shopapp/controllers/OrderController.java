@@ -4,7 +4,6 @@ import com.example.shopapp.dtos.request.OrderDTO;
 import com.example.shopapp.dtos.responses.OrderResponse;
 import com.example.shopapp.models.Order;
 import com.example.shopapp.service.IOrderService;
-import com.example.shopapp.service.IProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

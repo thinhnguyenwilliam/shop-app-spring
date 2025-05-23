@@ -35,6 +35,10 @@ public class UserService implements IUserService
         Role role = roleRepository.findById(userDTO.getRoleId())
                 .orElseThrow(() -> new DataNotFoundException("Role not found for id: " + userDTO.getRoleId()));
 
+        if(role.getName().equals("ADMIN")){
+            throw new DataIntegrityViolationException("Admin role cannot be created manually");
+        }
+
         // Determine if this is a normal (non-social) user
         boolean isNormalAccount = (userDTO.getFacebookAccountId() == null || userDTO.getFacebookAccountId() == 0)
                 && (userDTO.getGoogleAccountId() == null || userDTO.getGoogleAccountId() == 0);
