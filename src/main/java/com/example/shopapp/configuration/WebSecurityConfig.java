@@ -42,7 +42,11 @@ public class WebSecurityConfig {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:4200") // Frontend URL
+                        .allowedOrigins(
+                                "http://localhost:4200",
+                                "http://localhost:4300",
+                                "https://your-production-frontend.com"
+                        )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);

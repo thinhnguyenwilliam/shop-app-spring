@@ -25,7 +25,7 @@ public class UserService implements IUserService
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public void createUser(UserDTO userDTO) throws DataNotFoundException {
+    public User createUser(UserDTO userDTO) throws DataNotFoundException {
         String phoneNumber = userDTO.getPhoneNumber();
 
         if (Boolean.TRUE.equals(userRepository.existsByPhoneNumber(phoneNumber))) {
@@ -60,6 +60,7 @@ public class UserService implements IUserService
                 .build();
 
         userRepository.save(newUser);
+        return newUser;
     }
 
     @Override

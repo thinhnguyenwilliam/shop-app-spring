@@ -1,9 +1,14 @@
 package com.example.shopapp.controllers;
 import com.example.shopapp.dtos.request.UserDTO;
 import com.example.shopapp.dtos.request.UserLoginDTO;
+import com.example.shopapp.dtos.responses.LoginResponse;
+import com.example.shopapp.models.User;
 import com.example.shopapp.service.IUserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -19,7 +25,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
     private final IUserService userService;
-
+    private final MessageSource messageSource;
 
     @PostMapping("/register")
     public ResponseEntity<Object> createUser(
@@ -37,20 +43,34 @@ public class UserController {
             }
             if(!userDTO.getPassword().equals(userDTO.getRetypePassword()))
                 return ResponseEntity.badRequest().body("Passwords do not match");
-            userService.createUser(userDTO);
 
-            return ResponseEntity.ok(Map.of("message", "Register success"));
+            User createdUser = userService.createUser(userDTO);
+            return ResponseEntity.ok(createdUser);
 
         }catch(Exception e){
-            return ResponseEntity.badRequest().body("Register failed: " + e.getMessage());
+            return ResponseEntity.badRequest().body(
+                    Map.of("message", "Register failed: " + e.getMessage())
+            );
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity<LoginResponse> login(
+            @Valid @RequestBody UserLoginDTO userLoginDTO,
+            HttpServletRequest request
+    ) {
         String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
 
-        return ResponseEntity.ok(token);
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage("user.login.login_successfully", null, locale);
+
+        return ResponseEntity.ok(
+                LoginResponse.builder()
+                        .message(message)
+                        .token(token)
+                        .build()
+        );
     }
+
 
 }
