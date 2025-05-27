@@ -4,11 +4,11 @@ import com.example.shopapp.dtos.request.UserLoginDTO;
 import com.example.shopapp.dtos.responses.LoginResponse;
 import com.example.shopapp.models.User;
 import com.example.shopapp.service.IUserService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.example.shopapp.components.LocalizationUtils;
+import com.example.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -25,7 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
     private final IUserService userService;
-    private final MessageSource messageSource;
+    private final LocalizationUtils localizationUtils;
 
     @PostMapping("/register")
     public ResponseEntity<Object> createUser(
@@ -56,21 +55,34 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
-            @Valid @RequestBody UserLoginDTO userLoginDTO,
-            HttpServletRequest request
+            @Valid @RequestBody UserLoginDTO userLoginDTO
     ) {
-        String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
+        try {
+            String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
+            String message = localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY);
 
-        Locale locale = LocaleContextHolder.getLocale();
-        String message = messageSource.getMessage("user.login.login_successfully", null, locale);
+            return ResponseEntity.ok(
+                    LoginResponse.builder()
+                            .message(message)
+                            .token(token)
+                            .build()
+            );
+        } catch (Exception ex) {
+            // Exception is just an example; use your actual exception class
+            String errorMessage = localizationUtils.getLocalizedMessage(
+                    MessageKeys.LOGIN_FAILED,
+                    new Object[]{ex.getMessage()} // Pass the exception message as an argument
+            );
 
-        return ResponseEntity.ok(
-                LoginResponse.builder()
-                        .message(message)
-                        .token(token)
-                        .build()
-        );
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(LoginResponse.builder()
+                            .message(errorMessage)
+                            .token(null)
+                            .build()
+                    );
+        }
     }
+
 
 
 }
