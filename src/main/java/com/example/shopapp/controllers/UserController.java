@@ -58,7 +58,12 @@ public class UserController {
             @Valid @RequestBody UserLoginDTO userLoginDTO
     ) {
         try {
-            String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
+            String token = userService.login(
+                    userLoginDTO.getPhoneNumber(),
+                    userLoginDTO.getPassword(),
+                    userLoginDTO.getRoleId()
+            );
+
             String message = localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY);
 
             return ResponseEntity.ok(

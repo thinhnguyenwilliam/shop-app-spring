@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -38,6 +37,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         bypassTokens.put("/" + apiPrefix + "/categories", "GET");
         bypassTokens.put("/" + apiPrefix + "/users/register", "POST");
         bypassTokens.put("/" + apiPrefix + "/users/login", "POST");
+        bypassTokens.put("/" + apiPrefix + "/roles", "GET");
     }
 
     @Override

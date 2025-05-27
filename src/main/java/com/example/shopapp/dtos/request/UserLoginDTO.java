@@ -1,6 +1,7 @@
 package com.example.shopapp.dtos.request;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -17,4 +18,7 @@ public class UserLoginDTO {
 
     @NotBlank(message = "Password must not be blank")
     String password;
+
+    @JsonProperty("role_id")
+    Integer roleId;
 }

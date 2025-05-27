@@ -27,7 +27,8 @@ public class WebSecurityConfig {
             "/orders/**",
             "/categories/**",
             "/products/**",
-            "/order_details/**"
+            "/order_details/**",
+            "/roles/**"
     };
 
     private final JwtTokenFilter jwtTokenFilter;
@@ -116,6 +117,10 @@ public class WebSecurityConfig {
                         .requestMatchers(
                                 HttpMethod.DELETE, "/" + apiPrefix + PATHS[3]
                         ).hasRole(ROLE_ADMIN)
+                        //
+                        .requestMatchers(
+                                HttpMethod.GET, "/" + apiPrefix + PATHS[4]
+                        ).permitAll()
                         //
                         .anyRequest().authenticated()
                 )

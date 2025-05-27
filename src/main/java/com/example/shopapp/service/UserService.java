@@ -14,6 +14,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService implements IUserService
@@ -64,9 +66,22 @@ public class UserService implements IUserService
     }
 
     @Override
-    public String login(String phoneNumber, String password) {
+    public String login(String phoneNumber, String password, Integer roleId) {
         User user = userRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new RuntimeException("User not found for phone number: " + phoneNumber));
+
+        // Check password (assume it's stored securely with encoder)
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Invalid password.");
+        }
+
+        // Validate role
+        roleRepository.findById(roleId)
+                .orElseThrow(() -> new RuntimeException("Role not found for id: " + roleId));
+
+        if (!roleId.equals(user.getRole().getId())) {
+            throw new RuntimeException("User does not have the specified role.");
+        }
 
         // Optional: You can check if it's a normal account (non-social login)
         boolean isNormalUser = (user.getFacebookAccountId() == 0 && user.getGoogleAccountId() == 0);
