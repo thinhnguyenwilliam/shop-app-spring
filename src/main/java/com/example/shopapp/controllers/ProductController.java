@@ -9,6 +9,8 @@ import com.example.shopapp.models.ProductImage;
 import com.example.shopapp.service.IProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,9 +31,41 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
+@Slf4j
 public class ProductController
 {
     private final IProductService productService;
+
+    @GetMapping("/images/{imageName}")
+    public ResponseEntity<Object> viewImage(@PathVariable String imageName) {
+        try {
+            Path imagePath = Paths.get("uploads", imageName);
+            UrlResource resource = new UrlResource(imagePath.toUri());
+
+            log.info("Image path: {}", imagePath);
+            log.info("File exists: {}", Files.exists(imagePath));
+            log.info("Readable: {}", Files.isReadable(imagePath));
+            log.info("Working directory: {}", System.getProperty("user.dir"));
+
+            if (resource.exists() && resource.isReadable()) {
+                String contentType = Files.probeContentType(imagePath);
+                if (contentType == null) {
+                    contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+                }
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (IOException ex) {
+            log.error("Error reading image file", ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Could not read the file.");
+        }
+    }
+
 
 
     @GetMapping("")

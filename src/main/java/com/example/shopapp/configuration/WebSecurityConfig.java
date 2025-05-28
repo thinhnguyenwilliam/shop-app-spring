@@ -28,7 +28,8 @@ public class WebSecurityConfig {
             "/categories/**",
             "/products/**",
             "/order_details/**",
-            "/roles/**"
+            "/roles/**",
+            "/products/images/*"
     };
 
     private final JwtTokenFilter jwtTokenFilter;
@@ -120,6 +121,10 @@ public class WebSecurityConfig {
                         //
                         .requestMatchers(
                                 HttpMethod.GET, "/" + apiPrefix + PATHS[4]
+                        ).permitAll()
+                        //
+                        .requestMatchers(
+                                HttpMethod.GET, "/" + apiPrefix + PATHS[5]
                         ).permitAll()
                         //
                         .anyRequest().authenticated()
