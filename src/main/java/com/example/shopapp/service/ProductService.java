@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
@@ -63,6 +64,7 @@ public class ProductService implements IProductService
 
 
     @Override
+    @Transactional
     public ProductResponse updateProduct(Integer id, ProductDTO productDTO) {
         Product existingProduct = getProductById(id);
         if (existingProduct != null) {

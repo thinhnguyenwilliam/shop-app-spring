@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -27,13 +28,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtil jwtTokenUtil;
     private final Map<String, String> bypassTokens = new HashMap<>();
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Value("${api.prefix}")
     private String apiPrefix;
 
     @PostConstruct
     public void initBypassTokens() {
-        bypassTokens.put("/" + apiPrefix + "/products", "GET");
+        bypassTokens.put("/" + apiPrefix + "/products/**", "GET");
         bypassTokens.put("/" + apiPrefix + "/categories", "GET");
         bypassTokens.put("/" + apiPrefix + "/users/register", "POST");
         bypassTokens.put("/" + apiPrefix + "/users/login", "POST");
@@ -55,7 +57,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 String bypassPath = entry.getKey();
                 String bypassMethod = entry.getValue();
 
-                if (path.equals(bypassPath) && method.equalsIgnoreCase(bypassMethod)) {
+                if (pathMatcher.match(bypassPath, path) && method.equalsIgnoreCase(bypassMethod)) {
                     filterChain.doFilter(request, response);
                     return;
                 }

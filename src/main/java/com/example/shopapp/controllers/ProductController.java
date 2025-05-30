@@ -66,14 +66,12 @@ public class ProductController
         }
     }
 
-
-
     @GetMapping("")
     public ResponseEntity<ProductListResponse> getAllProducts(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "limit", defaultValue = "10") int limit
     ) {
-        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createdAt").descending());
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
         Page<ProductResponse> products = productService.getAllProducts(pageRequest);
 
         ProductListResponse response = ProductListResponse.builder()

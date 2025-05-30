@@ -29,7 +29,6 @@ public class WebSecurityConfig {
             "/products/**",
             "/order_details/**",
             "/roles/**",
-            "/products/images/*"
     };
 
     private final JwtTokenFilter jwtTokenFilter;
@@ -95,10 +94,10 @@ public class WebSecurityConfig {
                         //
                         .requestMatchers(
                                 HttpMethod.GET, "/" + apiPrefix + PATHS[2]
-                        ).hasAnyRole(ROLE_ADMIN, ROLE_USER)
+                        ).permitAll()
                         .requestMatchers(
                                 HttpMethod.POST, "/" + apiPrefix + PATHS[2]
-                        ).hasRole(ROLE_ADMIN)
+                        ).hasRole(ROLE_USER)
                         .requestMatchers(
                                 HttpMethod.PUT, "/" + apiPrefix + PATHS[2]
                         ).hasRole(ROLE_ADMIN)
@@ -121,10 +120,6 @@ public class WebSecurityConfig {
                         //
                         .requestMatchers(
                                 HttpMethod.GET, "/" + apiPrefix + PATHS[4]
-                        ).permitAll()
-                        //
-                        .requestMatchers(
-                                HttpMethod.GET, "/" + apiPrefix + PATHS[5]
                         ).permitAll()
                         //
                         .anyRequest().authenticated()

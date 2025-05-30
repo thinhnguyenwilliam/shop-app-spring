@@ -73,7 +73,15 @@ CREATE TABLE products (
 
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
-
+-- ✅ Corrected UPDATE to set thumbnail from first image
+UPDATE products p
+JOIN (
+    SELECT product_id, MIN(id) AS first_image_id
+    FROM product_images
+    GROUP BY product_id
+) AS first_images ON p.id = first_images.product_id
+JOIN product_images pi ON pi.id = first_images.first_image_id
+SET p.thumbnail = pi.image_url;
 
 CREATE TABLE product_images (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

@@ -10,6 +10,7 @@ import com.example.shopapp.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -59,6 +60,7 @@ public class OrderService implements IOrderService
     }
 
     @Override
+    @Transactional
     public Order updateOrder(Integer id, OrderDTO orderDTO) {
         // Find existing order
         Order existingOrder = orderRepository.findById(id)
@@ -81,6 +83,7 @@ public class OrderService implements IOrderService
 
 
     @Override
+    @Transactional
     public void deleteOrderById(Integer id) {
         Order order = getOrderById(id); // should already throw if not found
 
