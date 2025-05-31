@@ -68,10 +68,10 @@ public class WebSecurityConfig {
                         //
                         .requestMatchers(
                                 HttpMethod.GET, "/" + apiPrefix + PATHS[1]
-                        ).hasAnyRole(ROLE_ADMIN, ROLE_USER)
+                        ).permitAll()
                         .requestMatchers(
                                 HttpMethod.POST, "/" + apiPrefix + PATHS[1]
-                        ).hasRole(ROLE_ADMIN)
+                        ).hasRole(ROLE_USER)
                         .requestMatchers(
                                 HttpMethod.PUT, "/" + apiPrefix + PATHS[1]
                         ).hasRole(ROLE_ADMIN)

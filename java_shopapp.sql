@@ -3,6 +3,22 @@ USE shopapp_java;
 DROP DATABASE shopapp_java;
 
 
+-- ✅ Corrected UPDATE to set thumbnail from first image
+-- chạy sau khi update trong code java
+SET SQL_SAFE_UPDATES = 0; -- Run this before your update:
+SET SQL_SAFE_UPDATES = 1; -- Re-enable safe mode afterward:
+
+
+UPDATE products p
+JOIN (
+    SELECT product_id, MIN(id) AS first_image_id
+    FROM product_images
+    GROUP BY product_id
+) AS first_images ON p.id = first_images.product_id
+JOIN product_images pi ON pi.id = first_images.first_image_id
+SET p.thumbnail = pi.image_url;
+
+
 CREATE TABLE users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     fullname VARCHAR(50) DEFAULT '',
@@ -73,15 +89,7 @@ CREATE TABLE products (
 
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
--- ✅ Corrected UPDATE to set thumbnail from first image
-UPDATE products p
-JOIN (
-    SELECT product_id, MIN(id) AS first_image_id
-    FROM product_images
-    GROUP BY product_id
-) AS first_images ON p.id = first_images.product_id
-JOIN product_images pi ON pi.id = first_images.first_image_id
-SET p.thumbnail = pi.image_url;
+
 
 CREATE TABLE product_images (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

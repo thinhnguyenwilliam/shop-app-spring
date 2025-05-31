@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -36,16 +37,40 @@ public class ProductController
 {
     private final IProductService productService;
 
+    @GetMapping("/multiple")
+    public ResponseEntity<Object> getMultipleProducts(@RequestParam("ids") String ids) {
+        try {
+            // Convert comma-separated string into List<Integer>
+            List<Integer> productIds = Arrays.stream(ids.split(","))
+                    .map(String::trim)
+                    .map(Integer::parseInt)
+                    .toList(); // Java 16+
+
+            List<Product> products = productService.findProductsByIds(productIds);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Failed to fetch products.");
+        }
+    }
+
+
+
     @GetMapping("/images/{imageName}")
     public ResponseEntity<Object> viewImage(@PathVariable String imageName) {
         try {
             Path imagePath = Paths.get("uploads", imageName);
             UrlResource resource = new UrlResource(imagePath.toUri());
 
-            log.info("Image path: {}", imagePath);
-            log.info("File exists: {}", Files.exists(imagePath));
-            log.info("Readable: {}", Files.isReadable(imagePath));
-            log.info("Working directory: {}", System.getProperty("user.dir"));
+            //log.info("Image path: {}", imagePath);
+            //log.info("File exists: {}", Files.exists(imagePath));
+            //log.info("Readable: {}", Files.isReadable(imagePath));
+            //log.info("Working directory: {}", System.getProperty("user.dir"));
+
+            if (!resource.exists() || !resource.isReadable()) {
+                // Fallback to default 404 image
+                imagePath = Paths.get("uploads", "404-notfound.png");
+                resource = new UrlResource(imagePath.toUri());
+            }
 
             if (resource.exists() && resource.isReadable()) {
                 String contentType = Files.probeContentType(imagePath);
@@ -68,11 +93,13 @@ public class ProductController
 
     @GetMapping("")
     public ResponseEntity<ProductListResponse> getAllProducts(
+            @RequestParam(value = "keyword", defaultValue = "") String keyword, // use to search by keyword
+            @RequestParam(value = "category_id", defaultValue = "0") Long categoryId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "limit", defaultValue = "10") int limit
     ) {
         PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
-        Page<ProductResponse> products = productService.getAllProducts(pageRequest);
+        Page<ProductResponse> products = productService.getAllProducts(keyword, categoryId, pageRequest);
 
         ProductListResponse response = ProductListResponse.builder()
                 .message("Success")

@@ -24,9 +24,9 @@ public class FakeDataGenerator {
 
     //@PostConstruct
     public void generateFakeProducts() {
-        int categoryId = 2; // Ensure this category exists
+        int categoryId = 1; // Ensure this category exists
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 2; i++) {
             Product product = new Product();
             product.setName(faker.commerce().productName());
             product.setSlug("product-" + UUID.randomUUID());
@@ -35,7 +35,7 @@ public class FakeDataGenerator {
             product.setPrice(Float.parseFloat(faker.commerce().price()));
 
             product.setDescription(faker.lorem().sentence(10));
-            product.setThumbnail("https://via.placeholder.com/150");
+            //product.setThumbnail("https://via.placeholder.com/150");
             product.setCategory(categoryRepository.findById(categoryId).orElse(null));
 
             // Manually set createdAt and updatedAt

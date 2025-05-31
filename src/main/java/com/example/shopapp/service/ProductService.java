@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -57,10 +58,12 @@ public class ProductService implements IProductService
     }
 
     @Override
-    public Page<ProductResponse> getAllProducts(PageRequest pageRequest) {
-        Page<Product> productPage = productRepository.findAll(pageRequest);
+    public Page<ProductResponse> getAllProducts(String keyword, Long categoryId, PageRequest pageRequest) {
+        keyword = keyword == null ? "" : keyword.trim().toLowerCase();
+        Page<Product> productPage = productRepository.findByKeywordAndCategory(keyword, categoryId, pageRequest);
         return productPage.map(ProductResponse::fromProduct);
     }
+
 
 
     @Override
@@ -123,6 +126,13 @@ public class ProductService implements IProductService
 
         return productImageRepository.save(newProductImage);
     }
+
+    @Override
+    public List<Product> findProductsByIds(List<Integer> productIds) {
+        //return productRepository.findProductsByIds(productIds); // cach 1
+        return productRepository.findAllById(productIds); // cach 2
+    }
+
 
 
 }
