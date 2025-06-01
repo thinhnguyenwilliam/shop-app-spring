@@ -40,6 +40,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         bypassTokens.put("/" + apiPrefix + "/users/register", "POST");
         bypassTokens.put("/" + apiPrefix + "/users/login", "POST");
         bypassTokens.put("/" + apiPrefix + "/roles", "GET");
+        bypassTokens.put("/" + apiPrefix + "/orders", "GET");
     }
 
     @Override

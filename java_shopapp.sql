@@ -146,7 +146,7 @@ CREATE TABLE orders (
     order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(100),
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    total_money DECIMAL(10,2) NOT NULL CHECK (total_money >= 0),
+    total_money DECIMAL(10,2) CHECK (total_money >= 0),
    
     FOREIGN KEY (user_id) REFERENCES users(id),
     INDEX idx_order_user (user_id),
@@ -167,7 +167,7 @@ CREATE TABLE order_details (
     product_id INT UNSIGNED NOT NULL,
     price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
     number_of_products INT UNSIGNED,
-    total_money DECIMAL(10,2) NOT NULL CHECK (total_money >= 0),
+    total_money DECIMAL(10,2) CHECK (total_money >= 0),
     color VARCHAR(20) DEFAULT '',
 
     FOREIGN KEY (order_id) REFERENCES orders(id),

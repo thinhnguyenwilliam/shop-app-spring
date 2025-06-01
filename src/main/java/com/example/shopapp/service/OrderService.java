@@ -1,17 +1,18 @@
 package com.example.shopapp.service;
 
+import com.example.shopapp.dtos.request.CartItemDTO;
 import com.example.shopapp.dtos.request.OrderDTO;
 import com.example.shopapp.dtos.responses.OrderResponse;
-import com.example.shopapp.models.Order;
-import com.example.shopapp.models.OrderStatus;
-import com.example.shopapp.models.User;
+import com.example.shopapp.models.*;
 import com.example.shopapp.repositories.OrderRepository;
+import com.example.shopapp.repositories.ProductRepository;
 import com.example.shopapp.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class OrderService implements IOrderService
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final ModelMapper modelMapper;
+    private final ProductRepository productRepository;
 
 
     @Override
@@ -47,8 +49,27 @@ public class OrderService implements IOrderService
         order.setShippingDate(shippingDate);
         order.setActive(true);
 
-        // Save and convert
-        Order savedOrder = orderRepository.save(order);
+        // Initialize orderDetails list
+        List<OrderDetail> orderDetails = new ArrayList<>();
+
+        for (CartItemDTO cartItemDTO : orderDTO.getCartItems()) {
+            Product product = productRepository.findById(cartItemDTO.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found with id: " + cartItemDTO.getProductId()));
+
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrder(order);
+            orderDetail.setProduct(product);
+            orderDetail.setNumberOfProducts(cartItemDTO.getQuantity());
+            orderDetail.setPrice(product.getPrice());
+
+            orderDetails.add(orderDetail);
+        }
+
+        // Set order details and save order
+        order.setOrderDetails(orderDetails);
+        Order savedOrder = orderRepository.save(order); // Cascade will save orderDetails too
+
+        // Map to response
         return modelMapper.map(savedOrder, OrderResponse.class);
     }
 

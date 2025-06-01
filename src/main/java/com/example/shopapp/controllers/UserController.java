@@ -58,10 +58,11 @@ public class UserController {
             @Valid @RequestBody UserLoginDTO userLoginDTO
     ) {
         try {
+            int roleId = userLoginDTO.getRoleId() == null ? 2 : userLoginDTO.getRoleId();
             String token = userService.login(
                     userLoginDTO.getPhoneNumber(),
                     userLoginDTO.getPassword(),
-                    userLoginDTO.getRoleId()
+                    roleId
             );
 
             String message = localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY);

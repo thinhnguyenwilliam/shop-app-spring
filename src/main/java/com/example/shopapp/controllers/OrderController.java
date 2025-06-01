@@ -16,17 +16,15 @@ import java.util.List;
 @RequestMapping("${api.prefix}/orders")
 @RequiredArgsConstructor
 public class OrderController {
-
     private final IOrderService orderService;
-
 
     @PostMapping("")
     public ResponseEntity<Object> createOrder(
             @Valid
             @RequestBody OrderDTO orderDTO,
             BindingResult result
-            ) {
-        try{
+    ) {
+        try {
             if (result.hasErrors()) {
                 List<String> errors = result.getFieldErrors()
                         .stream()
@@ -36,23 +34,21 @@ public class OrderController {
             }
             OrderResponse orderResponse = orderService.createOrder(orderDTO);
             return ResponseEntity.ok(orderResponse);
-        }catch(Exception e){
-            return ResponseEntity.badRequest().body("Order failed");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     // 1 userID has many orders
     @GetMapping("/user/{user_id}")
-    public ResponseEntity<Object> getOrders(@Valid @PathVariable("user_id") Integer userId)
-    {
-        List<Order> orders= orderService.findByUserId(userId);
+    public ResponseEntity<Object> getOrders(@Valid @PathVariable("user_id") Integer userId) {
+        List<Order> orders = orderService.findByUserId(userId);
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getOrder(@Valid @PathVariable("id") Integer id)
-    {
-        Order existingOrder= orderService.getOrderById(id);
+    public ResponseEntity<Object> getOrder(@Valid @PathVariable("id") Integer id) {
+        Order existingOrder = orderService.getOrderById(id);
         return ResponseEntity.ok(existingOrder);
     }
 

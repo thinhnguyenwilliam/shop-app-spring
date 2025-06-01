@@ -9,6 +9,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -50,4 +51,7 @@ public class OrderDTO
 
     @JsonProperty("shipping_date")
     Date shippingDate;
+
+    @JsonProperty("cart_items")
+    private List<CartItemDTO> cartItems;
 }
