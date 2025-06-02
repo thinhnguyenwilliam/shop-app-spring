@@ -24,9 +24,9 @@ public class FakeDataGenerator {
 
     //@PostConstruct
     public void generateFakeProducts() {
-        int categoryId = 1; // Ensure this category exists
+        int categoryId = 3; // Ensure this category exists
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 20; i++) {
             Product product = new Product();
             product.setName(faker.commerce().productName());
             product.setSlug("product-" + UUID.randomUUID());

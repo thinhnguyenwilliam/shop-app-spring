@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ public class UserService implements IUserService
     private final AuthenticationManager authenticationManager;
 
     @Override
+    @Transactional
     public User createUser(UserDTO userDTO) throws DataNotFoundException {
         String phoneNumber = userDTO.getPhoneNumber();
 
@@ -96,6 +98,19 @@ public class UserService implements IUserService
         // Generate and return JWT token
         return jwtTokenUtil.generateToken(user);
     }
+
+    @Override
+    public User getUserDetailsFromToken(String token) throws Exception {
+        if (jwtTokenUtil.isTokenExpired(token)) {
+            throw new Exception("Token is expired");
+        }
+
+        String phoneNumber = jwtTokenUtil.getPhoneNumberFromToken(token);
+
+        return userRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new Exception("User not found"));
+    }
+
 
 
 }

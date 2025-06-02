@@ -49,7 +49,7 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOrder(@Valid @PathVariable("id") Integer id) {
         Order existingOrder = orderService.getOrderById(id);
-        return ResponseEntity.ok(existingOrder);
+        return ResponseEntity.ok(OrderResponse.fromOrder(existingOrder));
     }
 
     @PutMapping("/{id}")

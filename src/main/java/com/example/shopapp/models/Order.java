@@ -13,6 +13,7 @@ import java.util.List;
 @Table(name = "orders")
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
