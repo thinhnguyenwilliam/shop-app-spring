@@ -7,6 +7,7 @@ import com.example.shopapp.models.Role;
 import com.example.shopapp.models.User;
 import com.example.shopapp.repositories.RoleRepository;
 import com.example.shopapp.repositories.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -111,6 +112,23 @@ public class UserService implements IUserService
                 .orElseThrow(() -> new Exception("User not found"));
     }
 
+    @Override
+    @Transactional
+    public User updateUser(Integer userId, UserDTO updateUserDTO) {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        existingUser.setFullName(updateUserDTO.getFullName());
+        existingUser.setPhoneNumber(updateUserDTO.getPhoneNumber());
+        existingUser.setAddress(updateUserDTO.getAddress());
+        existingUser.setDateOfBirth(updateUserDTO.getDateOfBirth());
+
+        // Encode and update password only if provided
+        String encodedPassword = passwordEncoder.encode(updateUserDTO.getPassword());
+        existingUser.setPassword(encodedPassword);
+
+        return userRepository.save(existingUser);
+
+    }
 
 
 }

@@ -10,4 +10,7 @@ public interface IUserService {
     String login(String phoneNumber, String password, Integer roleId);
 
     User getUserDetailsFromToken(String extractedToken) throws Exception;
+
+    User updateUser(Integer userId, UserDTO userDTO);
+
 }

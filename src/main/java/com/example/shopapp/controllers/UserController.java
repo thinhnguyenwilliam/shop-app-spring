@@ -97,4 +97,28 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PutMapping("/details/{userId}")
+    public ResponseEntity<UserResponse> updateUserDetails(
+            @PathVariable("userId") Integer userId,
+            @Valid @RequestBody UserDTO userDTO,
+            @RequestHeader("Authorization") String authorizationHeader
+    ) {
+        try {
+            String extractedToken = authorizationHeader.substring(7);
+            User tokenUser = userService.getUserDetailsFromToken(extractedToken);
+
+            if (!tokenUser.getId().equals(userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            User updatedUser = userService.updateUser(userId, userDTO);
+            return ResponseEntity.ok(UserResponse.fromUser(updatedUser));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
 }

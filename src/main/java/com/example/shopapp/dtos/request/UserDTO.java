@@ -39,7 +39,6 @@ public class UserDTO {
     Integer googleAccountId;
 
     @JsonProperty("role_id")
-    @NotNull(message = "Role id must not be null")
     Integer roleId;
 
     @JsonProperty("retype_password")

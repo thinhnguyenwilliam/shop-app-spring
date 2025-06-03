@@ -161,6 +161,8 @@ ADD COLUMN payment_method VARCHAR(100) DEFAULT '';
 ALTER TABLE orders
 MODIFY COLUMN status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled', 'returned');
 
+DELETE FROM orders WHERE 1 = 1;
+
 CREATE TABLE order_details (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     order_id INT UNSIGNED NOT NULL,
@@ -173,6 +175,7 @@ CREATE TABLE order_details (
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
+DELETE FROM order_details WHERE 1 = 1;
 
 
 

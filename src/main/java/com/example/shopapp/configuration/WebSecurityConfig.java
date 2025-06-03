@@ -66,6 +66,10 @@ public class WebSecurityConfig {
                                 "/" + apiPrefix + "/users/register"
                         ).permitAll()
                         //
+//                        .requestMatchers(
+//                                HttpMethod.PUT, "/" + apiPrefix + "/users/details/**"
+//                        ).hasAnyRole(ROLE_USER, ROLE_ADMIN)
+                        //
                         .requestMatchers(
                                 HttpMethod.GET, "/" + apiPrefix + PATHS[1]
                         ).permitAll()

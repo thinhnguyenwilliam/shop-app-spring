@@ -30,17 +30,17 @@ public class ProductService implements IProductService
     private final ProductImageRepository productImageRepository;
 
     @Override
+    @Transactional
     public Product createProduct(ProductDTO productDTO) {
         // Step 1: Find the category
         Category category = categoryRepository.findById(productDTO.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid category ID: " + productDTO.getCategoryId()));
 
-
         // Step 2: Create a Product entity
         Product product = Product.builder()
                 .name(productDTO.getName())
                 .price(productDTO.getPrice())
-                .thumbnail(productDTO.getThumbnail()) // Assuming this is handled by file upload elsewhere
+                .thumbnail(productDTO.getThumbnail())
                 .description(productDTO.getDescription())
                 .category(category)
                 .slug(productDTO.getSlug() != null ? productDTO.getSlug() : productDTO.getName().toLowerCase().replace(" ", "-"))
@@ -63,8 +63,6 @@ public class ProductService implements IProductService
         Page<Product> productPage = productRepository.findByKeywordAndCategory(keyword, categoryId, pageRequest);
         return productPage.map(ProductResponse::fromProduct);
     }
-
-
 
     @Override
     @Transactional
