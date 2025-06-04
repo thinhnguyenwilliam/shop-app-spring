@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,6 +19,7 @@ import org.springframework.lang.NonNull;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class WebSecurityConfig {
 
     private static final String ROLE_ADMIN = "ADMIN";
@@ -66,10 +68,6 @@ public class WebSecurityConfig {
                                 "/" + apiPrefix + "/users/register"
                         ).permitAll()
                         //
-//                        .requestMatchers(
-//                                HttpMethod.PUT, "/" + apiPrefix + "/users/details/**"
-//                        ).hasAnyRole(ROLE_USER, ROLE_ADMIN)
-                        //
                         .requestMatchers(
                                 HttpMethod.GET, "/" + apiPrefix + PATHS[1]
                         ).permitAll()
@@ -95,6 +93,9 @@ public class WebSecurityConfig {
                         .requestMatchers(
                                 HttpMethod.DELETE, "/" + apiPrefix + PATHS[0]
                         ).hasRole(ROLE_ADMIN)
+//                        .requestMatchers(
+//                                HttpMethod.GET, "/" + apiPrefix + "/orders/get-order-by-keyword"
+//                        ).hasRole(ROLE_ADMIN)
                         //
                         .requestMatchers(
                                 HttpMethod.GET, "/" + apiPrefix + PATHS[2]

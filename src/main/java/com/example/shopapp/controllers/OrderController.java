@@ -1,12 +1,18 @@
 package com.example.shopapp.controllers;
 
 import com.example.shopapp.dtos.request.OrderDTO;
+import com.example.shopapp.dtos.responses.OrderListResponse;
 import com.example.shopapp.dtos.responses.OrderResponse;
 import com.example.shopapp.models.Order;
 import com.example.shopapp.service.IOrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,4 +76,36 @@ public class OrderController {
         orderService.deleteOrderById(id);
         return ResponseEntity.ok("Delete received : " + id);
     }
+
+    // ✅ Get all orders by keyword (with pagination)
+    @GetMapping("/get-order-by-keyword")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<OrderListResponse> searchOrders(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+
+        // Get paginated orders and map to DTOs
+        Page<OrderResponse> orderPage = orderService
+                .getOrdersByKeyword(keyword, pageable)
+                .map(OrderResponse::fromOrder);
+
+        List<OrderResponse> orderResponses = orderPage.getContent();
+
+        OrderListResponse response = OrderListResponse.builder()
+                .message("Fetched orders successfully")
+                .page(page)
+                .limit(size)
+                .totalPages(orderPage.getTotalPages())
+                .totalItems(orderPage.getTotalElements())
+                .orders(orderResponses)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+
+
 }

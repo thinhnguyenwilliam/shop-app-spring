@@ -2,7 +2,6 @@ package com.example.shopapp.dtos.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -20,7 +19,6 @@ public class UserDTO {
     String fullName;
 
     @JsonProperty("phone_number")
-    @NotBlank(message = "Phone number must not be blank")
     String phoneNumber;
 
     String address;

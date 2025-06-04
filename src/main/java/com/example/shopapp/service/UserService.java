@@ -16,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -118,7 +117,6 @@ public class UserService implements IUserService
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         existingUser.setFullName(updateUserDTO.getFullName());
-        existingUser.setPhoneNumber(updateUserDTO.getPhoneNumber());
         existingUser.setAddress(updateUserDTO.getAddress());
         existingUser.setDateOfBirth(updateUserDTO.getDateOfBirth());
 
