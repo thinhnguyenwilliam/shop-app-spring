@@ -116,6 +116,7 @@ public class ProductController
     public ResponseEntity<Object> getProductById(@PathVariable("productId") Integer id)
     {
         Product existingProduct= productService.getProductById(id);
+        //Product existingProduct= productService.getProductByIdVerTwo(id); // nothing special bro
         return ResponseEntity.ok(ProductResponse.fromProduct(existingProduct));
     }
 

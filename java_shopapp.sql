@@ -156,10 +156,16 @@ ALTER TABLE orders
 ADD COLUMN active TINYINT(1);
 
 ALTER TABLE orders
+MODIFY COLUMN active TINYINT(1) DEFAULT 1;
+
+ALTER TABLE orders
 ADD COLUMN payment_method VARCHAR(100) DEFAULT '';
 
 ALTER TABLE orders
 MODIFY COLUMN status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled', 'returned');
+
+ALTER TABLE orders
+MODIFY COLUMN total_money DECIMAL(10,2) DEFAULT 0;
 
 DELETE FROM orders WHERE 1 = 1;
 

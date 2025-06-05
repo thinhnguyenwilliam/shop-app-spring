@@ -15,6 +15,7 @@ public interface IProductService
 {
     Product createProduct(ProductDTO productDTO);
     Product getProductById(Integer id);
+    Product getProductByIdVerTwo(Integer id);
 
     Page<ProductResponse> getAllProducts(String keyword, Long categoryId, PageRequest pageRequest);
     ProductResponse updateProduct(Integer id, ProductDTO productDTO);

@@ -3,6 +3,7 @@ package com.example.shopapp.service;
 import com.example.shopapp.dtos.request.ProductDTO;
 import com.example.shopapp.dtos.request.ProductImageDTO;
 import com.example.shopapp.dtos.responses.ProductResponse;
+import com.example.shopapp.exceptions.DataNotFoundException;
 import com.example.shopapp.exceptions.InvalidParamException;
 import com.example.shopapp.models.Category;
 import com.example.shopapp.models.Product;
@@ -55,6 +56,15 @@ public class ProductService implements IProductService
     public Product getProductById(Integer id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with ID: " + id));
+    }
+
+    @Override
+    public Product getProductByIdVerTwo(Integer id) {
+        Optional<Product> optionalProduct = productRepository.getDetailProduct(id);
+        if(optionalProduct.isPresent()) {
+            return optionalProduct.get();
+        }
+        throw new RuntimeException("Cannot find product with id =" + id);
     }
 
     @Override

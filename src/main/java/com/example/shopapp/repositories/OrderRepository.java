@@ -13,7 +13,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findAllByUserId(Integer userId);
 
-    @Query("SELECT o FROM Order o WHERE " +
+    @Query("SELECT o FROM Order o WHERE o.active = true AND " +
             "(:keyword IS NULL OR :keyword = '' OR " +
             "LOWER(o.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(o.address) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
