@@ -91,7 +91,7 @@ public class WebSecurityConfig {
                         ).permitAll()
                         .requestMatchers(
                                 HttpMethod.PUT, "/" + apiPrefix + PATHS[0]
-                        ).hasRole(ROLE_ADMIN)
+                        ).hasAnyRole(ROLE_USER,ROLE_ADMIN)
                         .requestMatchers(
                                 HttpMethod.POST, "/" + apiPrefix + PATHS[0]
                         ).hasAnyRole(ROLE_USER)
@@ -110,7 +110,7 @@ public class WebSecurityConfig {
                         ).hasRole(ROLE_USER)
                         .requestMatchers(
                                 HttpMethod.PUT, "/" + apiPrefix + PATHS[2]
-                        ).hasRole(ROLE_ADMIN)
+                        ).hasRole(ROLE_USER)
                         .requestMatchers(
                                 HttpMethod.DELETE, "/" + apiPrefix + PATHS[2]
                         ).hasRole(ROLE_ADMIN)

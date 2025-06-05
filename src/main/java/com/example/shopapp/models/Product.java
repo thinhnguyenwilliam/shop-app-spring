@@ -1,12 +1,10 @@
 package com.example.shopapp.models;
 
+import com.example.shopapp.listener.ProductListener;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -18,8 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-//Event-driven approach with Spring Data JPA
-//@EntityListeners(ProductListener.class)
+@EntityListeners(ProductListener.class)//Event-driven approach with Spring Data JPA
 public class Product extends BaseEntity
 {
     @Id

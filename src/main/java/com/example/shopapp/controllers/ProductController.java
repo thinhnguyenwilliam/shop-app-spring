@@ -107,7 +107,7 @@ public class ProductController
         long totalItems;
         int totalPages;
 
-        if (cachedProducts == null) {
+        if (cachedProducts == null || cachedProducts.isEmpty()) {
             // If not cached, query DB and cache the result
             Page<ProductResponse> productPage = productService.getAllProducts(keyword, categoryId, pageRequest);
             List<ProductResponse> productList = productPage.getContent();

@@ -4,7 +4,9 @@ import com.example.shopapp.dtos.responses.ProductResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductRedisService implements IProductRedisService {
 
     private final RedisTemplate<String, Object> redisTemplate;
@@ -48,10 +51,12 @@ public class ProductRedisService implements IProductRedisService {
 
         String key = getKeyFrom(keyword, categoryId, pageRequest);
         Object cached = redisTemplate.opsForValue().get(key);
-        if (cached == null) return null;
+        if (cached == null)
+            return Collections.emptyList();
 
         String json = cached.toString();
-        return redisObjectMapper.readValue(json, new TypeReference<List<ProductResponse>>() {});
+        return redisObjectMapper.readValue(json, new TypeReference<>() {
+        });
     }
 
     @Override
@@ -70,8 +75,12 @@ public class ProductRedisService implements IProductRedisService {
         Set<String> keys = redisTemplate.keys(PRODUCT_KEY_PREFIX + ":*");
         if (!keys.isEmpty()) {
             redisTemplate.delete(keys);
+            log.info("Cleared {} cached product keys from Redis.", keys.size());
+        } else {
+            log.info("No cached product keys found to clear.");
         }
     }
+
 }
 
 
