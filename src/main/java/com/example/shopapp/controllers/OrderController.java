@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -23,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
     private final IOrderService orderService;
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     @PostMapping("")
     public ResponseEntity<Object> createOrder(
@@ -79,12 +82,14 @@ public class OrderController {
 
     // ✅ Get all orders by keyword (with pagination)
     @GetMapping("/get-order-by-keyword")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<OrderListResponse> searchOrders(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
+        logger.info("Info log message");
+        //logger.error("Error occurred", new RuntimeException("Dummy exception"));
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
 
         // Get paginated orders and map to DTOs

@@ -68,6 +68,10 @@ public class WebSecurityConfig {
                                 "/" + apiPrefix + "/users/register"
                         ).permitAll()
                         //
+                                .requestMatchers(
+                                        HttpMethod.GET, "/" + apiPrefix + "/healthcheck/health"
+                                ).permitAll()
+                        //
                         .requestMatchers(
                                 HttpMethod.GET, "/" + apiPrefix + PATHS[1]
                         ).permitAll()

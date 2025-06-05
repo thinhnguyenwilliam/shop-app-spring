@@ -13,7 +13,6 @@ public interface ProductRepository extends JpaRepository<Product,Integer>
 {
     Boolean existsByName(String name);
 
-
     @Query("SELECT p FROM Product p " +
             "WHERE (:keyword = '' OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
@@ -24,7 +23,6 @@ public interface ProductRepository extends JpaRepository<Product,Integer>
             Pageable pageable
     );
 
-
     // start
     // cach 1
     @Query("SELECT p FROM Product p WHERE p.id IN :productIds")
@@ -33,6 +31,4 @@ public interface ProductRepository extends JpaRepository<Product,Integer>
     //cach 2
     List<Product> findAllById(Iterable<Integer> ids);
     //end
-
-
 }

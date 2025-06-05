@@ -17,6 +17,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             "(:keyword IS NULL OR :keyword = '' OR " +
             "LOWER(o.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(o.address) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(o.note) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+            "LOWER(o.note) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(o.email) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Order> findAllByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
 }

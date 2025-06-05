@@ -7,6 +7,13 @@ server:
 api:
   prefix: api/v1
 
+logging:
+  level:
+    org.springframework.security: DEBUG  # Set log level for a Spring framework
+    com.yourcompany.yourapp: INFO  # Example: your app's base package
+  config: classpath:logback-spring.xml  # Custom logback configuration file
+
+
 # Application properties
 spring:
 #  jackson:

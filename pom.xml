@@ -115,7 +115,17 @@
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
 
+		<!-- Spring Boot Starter (already includes logging dependencies) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
 
+		<!-- Optional: Explicit Logback Classic (already included in spring-boot-starter-logging) -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
 
 
 	</dependencies>
