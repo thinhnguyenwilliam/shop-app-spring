@@ -65,7 +65,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/" + apiPrefix + "/users/login",
-                                "/" + apiPrefix + "/users/register"
+                                "/" + apiPrefix + "/users/register",
+                                "/" + apiPrefix + "/redis/**"
                         ).permitAll()
                         //
                                 .requestMatchers(

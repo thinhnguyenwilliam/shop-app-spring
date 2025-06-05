@@ -18,6 +18,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+//Event-driven approach with Spring Data JPA
+//@EntityListeners(ProductListener.class)
 public class Product extends BaseEntity
 {
     @Id

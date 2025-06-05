@@ -6,7 +6,9 @@ import com.example.shopapp.dtos.responses.ProductListResponse;
 import com.example.shopapp.dtos.responses.ProductResponse;
 import com.example.shopapp.models.Product;
 import com.example.shopapp.models.ProductImage;
+import com.example.shopapp.service.IProductRedisService;
 import com.example.shopapp.service.IProductService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,7 @@ import java.util.*;
 public class ProductController
 {
     private final IProductService productService;
+    private final IProductRedisService productRedisService;
 
     @GetMapping("/multiple")
     public ResponseEntity<Object> getMultipleProducts(@RequestParam("ids") String ids) {
@@ -92,25 +95,46 @@ public class ProductController
 
     @GetMapping("")
     public ResponseEntity<ProductListResponse> getAllProducts(
-            @RequestParam(value = "keyword", defaultValue = "") String keyword, // use to search by keyword
+            @RequestParam(value = "keyword", defaultValue = "") String keyword,
             @RequestParam(value = "category_id", defaultValue = "0") Long categoryId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "limit", defaultValue = "10") int limit
-    ) {
+    ) throws JsonProcessingException {
         PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
-        Page<ProductResponse> products = productService.getAllProducts(keyword, categoryId, pageRequest);
+
+        // Try to get from cache
+        List<ProductResponse> cachedProducts = productRedisService.getAllProducts(keyword, categoryId, pageRequest);
+        long totalItems;
+        int totalPages;
+
+        if (cachedProducts == null) {
+            // If not cached, query DB and cache the result
+            Page<ProductResponse> productPage = productService.getAllProducts(keyword, categoryId, pageRequest);
+            List<ProductResponse> productList = productPage.getContent();
+            totalItems = productPage.getTotalElements();
+            totalPages = productPage.getTotalPages();
+
+            productRedisService.saveAllProducts(productList, keyword, categoryId, pageRequest);
+
+            cachedProducts = productList;
+        } else {
+            // If cached, estimate size only
+            totalItems = cachedProducts.size();
+            totalPages = (int) Math.ceil((double) totalItems / limit);
+        }
 
         ProductListResponse response = ProductListResponse.builder()
                 .message("Success")
                 .page(page)
                 .limit(limit)
-                .totalPages(products.getTotalPages())
-                .totalItems(products.getTotalElements())
-                .products(products.getContent())
+                .totalPages(totalPages)
+                .totalItems(totalItems)
+                .products(cachedProducts)
                 .build();
 
         return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/{productId}")
     public ResponseEntity<Object> getProductById(@PathVariable("productId") Integer id)
