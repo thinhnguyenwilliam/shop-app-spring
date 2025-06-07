@@ -7,6 +7,32 @@ server:
 api:
   prefix: api/v1
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api/v1/api-docs
+  swagger-ui:
+    enabled: true
+    path: /api/v1/swagger-ui.html
+  paths-to-match:             # What API paths should be included in the docs
+#    - /api/v1/**
+    - /**
+  default-produces-media-type: application/json
+  paths-to-exclude:
+    - /actuator/**
+
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      base-path: /api/v1/actuator
+  endpoint:
+    health:
+      show-details: always
 
 
 logging:

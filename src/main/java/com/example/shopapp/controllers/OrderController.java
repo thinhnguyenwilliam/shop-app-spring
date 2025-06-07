@@ -5,6 +5,8 @@ import com.example.shopapp.dtos.responses.OrderListResponse;
 import com.example.shopapp.dtos.responses.OrderResponse;
 import com.example.shopapp.models.Order;
 import com.example.shopapp.service.IOrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -62,6 +64,8 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<Object> updateOrder(
             @PathVariable("id") Integer id,
             @Valid @RequestBody OrderDTO orderDTO

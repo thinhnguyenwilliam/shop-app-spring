@@ -44,6 +44,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         bypassTokens.put("/" + apiPrefix + "/redis/**", "GET"); // key is duplicate
         //bypassTokens.put("/" + apiPrefix + "/redis/**", "POST");
 
+        bypassTokens.put("/" + apiPrefix + "/actuator/**", "GET");
+
         //bypassTokens.put("/" + apiPrefix + "/orders/**", "GET");
         //bypassTokens.put("/" + apiPrefix + "/orders", "GET");
     }

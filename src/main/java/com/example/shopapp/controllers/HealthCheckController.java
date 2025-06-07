@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.InetAddress;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/healthcheck")
@@ -20,9 +22,11 @@ public class HealthCheckController {
     @GetMapping("/health")
     public ResponseEntity<Object> healthCheck() {
         try {
-            List<Category> categories = categoryService.getAllCategories();
-            HealthCheckResponse response = new HealthCheckResponse("ok", categories);
-            return ResponseEntity.ok(response);
+            //List<Category> categories = categoryService.getAllCategories();
+            //HealthCheckResponse response = new HealthCheckResponse("ok", categories);
+            //return ResponseEntity.ok(response);
+            String computerName = InetAddress.getLocalHost().getHostName();
+            return ResponseEntity.ok(Map.of("computerName", computerName));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new HealthCheckResponse("failed", null));
         }
