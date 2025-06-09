@@ -2,6 +2,8 @@ CREATE DATABASE shopapp_java  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE shopapp_java;
 DROP DATABASE shopapp_java;
 
+DESC users;
+DESC categories;
 
 -- ✅ Corrected UPDATE to set thumbnail from first image
 -- chạy sau khi update trong code java

@@ -44,9 +44,16 @@ logging:
 
 # Application properties
 spring:
+  flyway:
+    enabled: true
+    locations: classpath:db/migration, classpath:dev/db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+
   #  jackson:
 #    date-format: yyyy-MM-dd HH:mm:ss
 #    time-zone: UTC
+
 
   servlet:
     multipart:
