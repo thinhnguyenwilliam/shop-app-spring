@@ -1,6 +1,8 @@
 package com.example.shopapp.components;
 
+import com.example.shopapp.models.Token;
 import com.example.shopapp.models.User;
+import com.example.shopapp.repositories.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -20,6 +22,8 @@ import java.util.function.Function;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenUtil {
+
+    private final TokenRepository tokenRepository;
 
     @Value("${jwt.expiration}")
     private int expiration; // in seconds
@@ -81,6 +85,13 @@ public class JwtTokenUtil {
 
     public boolean validateToken(String token, UserDetails userDetails) {
         String phoneNumber = getPhoneNumberFromToken(token);
-        return (phoneNumber.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        Token existingToken = tokenRepository.findByToken(token);
+
+        if (existingToken == null || Boolean.TRUE.equals(existingToken.getRevoked())) {
+            return false;
+        }
+
+        return phoneNumber.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
+
 }

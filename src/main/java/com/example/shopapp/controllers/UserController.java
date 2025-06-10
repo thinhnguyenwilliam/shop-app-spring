@@ -4,9 +4,11 @@ import com.example.shopapp.dtos.request.UserLoginDTO;
 import com.example.shopapp.dtos.responses.LoginResponse;
 import com.example.shopapp.dtos.responses.UserResponse;
 import com.example.shopapp.models.User;
+import com.example.shopapp.service.ITokenService;
 import com.example.shopapp.service.IUserService;
 import com.example.shopapp.components.LocalizationUtils;
 import com.example.shopapp.utils.MessageKeys;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import java.util.Map;
 public class UserController {
     private final IUserService userService;
     private final LocalizationUtils localizationUtils;
+    private final ITokenService tokenService;
 
     @PostMapping("/register")
     public ResponseEntity<Object> createUser(
@@ -53,15 +56,26 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
-            @Valid @RequestBody UserLoginDTO userLoginDTO
+            @Valid @RequestBody UserLoginDTO userLoginDTO,
+            HttpServletRequest request
     ) {
         try {
-            int roleId = userLoginDTO.getRoleId() == null ? 2 : userLoginDTO.getRoleId();
+            int roleId = (userLoginDTO.getRoleId() != null) ? userLoginDTO.getRoleId() : 2;
+
+            // Detect device type using User-Agent header
+            String userAgent = request.getHeader("User-Agent");
+            boolean isMobile = isMobileDevice(userAgent);
+
+            // Perform login and generate token
             String token = userService.login(
                     userLoginDTO.getPhoneNumber(),
                     userLoginDTO.getPassword(),
                     roleId
             );
+
+            // Fetch user from token and store token with device context
+            User user = userService.getUserDetailsFromToken(token);
+            tokenService.addToken(user, token, isMobile);
 
             String message = localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY);
 
@@ -71,11 +85,12 @@ public class UserController {
                             .token(token)
                             .build()
             );
+
         } catch (Exception ex) {
-            // Exception is just an example; use your actual exception class
+            // Handle failure and localize a message
             String errorMessage = localizationUtils.getLocalizedMessage(
                     MessageKeys.LOGIN_FAILED,
-                    new Object[]{ex.getMessage()} // Pass the exception message as an argument
+                    new Object[]{ex.getMessage()}
             );
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -86,6 +101,14 @@ public class UserController {
                     );
         }
     }
+
+    private boolean isMobileDevice(String userAgent) {
+        if (userAgent == null) return false;
+
+        String ua = userAgent.toLowerCase();
+        return ua.contains("mobile") || ua.contains("android") || ua.contains("iphone");
+    }
+
 
     @PostMapping("/details")
     public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String token) {
