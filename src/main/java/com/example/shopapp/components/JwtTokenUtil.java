@@ -28,6 +28,9 @@ public class JwtTokenUtil {
     @Value("${jwt.expiration}")
     private int expiration; // in seconds
 
+    @Value("${jwt.expiration-refresh-token}")
+    private int expirationRefreshToken;
+
     @Value("${jwt.secretKey}")
     private String secretKey;
 

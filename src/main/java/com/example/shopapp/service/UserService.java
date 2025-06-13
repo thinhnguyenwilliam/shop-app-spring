@@ -4,8 +4,10 @@ import com.example.shopapp.components.JwtTokenUtil;
 import com.example.shopapp.dtos.request.UserDTO;
 import com.example.shopapp.exceptions.DataNotFoundException;
 import com.example.shopapp.models.Role;
+import com.example.shopapp.models.Token;
 import com.example.shopapp.models.User;
 import com.example.shopapp.repositories.RoleRepository;
+import com.example.shopapp.repositories.TokenRepository;
 import com.example.shopapp.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class UserService implements IUserService
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
+    private final TokenRepository tokenRepository;
 
     @Override
     @Transactional
@@ -126,6 +129,12 @@ public class UserService implements IUserService
 
         return userRepository.save(existingUser);
 
+    }
+
+    @Override
+    public User getUserDetailsFromRefreshToken(String refreshToken) throws Exception {
+        Token existingToken = tokenRepository.findByRefreshToken(refreshToken);
+        return getUserDetailsFromToken(existingToken.getToken());
     }
 
 

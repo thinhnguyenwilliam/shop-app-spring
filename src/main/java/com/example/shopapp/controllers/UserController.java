@@ -1,8 +1,10 @@
 package com.example.shopapp.controllers;
+import com.example.shopapp.dtos.request.RefreshTokenDTO;
 import com.example.shopapp.dtos.request.UserDTO;
 import com.example.shopapp.dtos.request.UserLoginDTO;
 import com.example.shopapp.dtos.responses.LoginResponse;
 import com.example.shopapp.dtos.responses.UserResponse;
+import com.example.shopapp.models.Token;
 import com.example.shopapp.models.User;
 import com.example.shopapp.service.ITokenService;
 import com.example.shopapp.service.IUserService;
@@ -26,6 +28,32 @@ public class UserController {
     private final IUserService userService;
     private final LocalizationUtils localizationUtils;
     private final ITokenService tokenService;
+
+
+    @PostMapping("/refreshToken")
+    public ResponseEntity<LoginResponse> refreshToken(
+            @Valid @RequestBody RefreshTokenDTO refreshTokenDTO
+    ) {
+        try {
+            User userDetail = userService.getUserDetailsFromRefreshToken(refreshTokenDTO.getRefreshToken());
+            Token jwtToken = tokenService.refreshToken(refreshTokenDTO.getRefreshToken(), userDetail);
+            return ResponseEntity.ok(LoginResponse.builder()
+                    .message("Refresh token successfully")
+                    .token(jwtToken.getToken())
+                    .tokenType(jwtToken.getTokenType())
+                    .refreshToken(jwtToken.getRefreshToken())
+                    .username(userDetail.getPhoneNumber())
+                    .roles(List.of("ROLE_" + userDetail.getRole().getName().toUpperCase()))
+                    .id(userDetail.getId())
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    LoginResponse.builder()
+                            .message("refresh token fail")
+                            .build()
+            );
+        }
+    }
 
     @PostMapping("/register")
     public ResponseEntity<Object> createUser(
@@ -75,7 +103,7 @@ public class UserController {
 
             // Fetch user from token and store token with device context
             User user = userService.getUserDetailsFromToken(token);
-            tokenService.addToken(user, token, isMobile);
+            Token jwtToken = tokenService.addToken(user, token, isMobile);
 
             String message = localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY);
 
@@ -83,6 +111,11 @@ public class UserController {
                     LoginResponse.builder()
                             .message(message)
                             .token(token)
+                            .tokenType(jwtToken.getTokenType())
+                            .refreshToken(jwtToken.getRefreshToken())
+                            .username(user.getPhoneNumber())
+                            .roles(List.of("ROLE_" + user.getRole().getName().toUpperCase()))
+                            .id(user.getId())
                             .build()
             );
 

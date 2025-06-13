@@ -53,6 +53,11 @@ CREATE TABLE tokens (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 ALTER TABLE tokens
+ADD COLUMN refresh_token VARCHAR(255),
+ADD COLUMN refresh_expiration_date DATETIME;
+
+
+ALTER TABLE tokens
 ADD COLUMN is_mobile TINYINT(1) DEFAULT 0;  -- TINYINT is a 1-byte integer data type.
 
 

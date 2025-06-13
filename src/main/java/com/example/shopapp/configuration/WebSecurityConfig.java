@@ -66,6 +66,7 @@ public class WebSecurityConfig {
                         .requestMatchers(
                                 "/" + apiPrefix + "/users/login",
                                 "/" + apiPrefix + "/users/register",
+                                "/" + apiPrefix + "/users/refreshToken",
                                 "/" + apiPrefix + "/redis/**",
                                 "/" + apiPrefix + "/actuator/**"
                         ).permitAll()

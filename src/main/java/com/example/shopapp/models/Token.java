@@ -24,11 +24,17 @@ public class Token {
     @Column(name = "token", length = 255)
     String token;
 
+    @Column(name = "refresh_token", length = 255)
+    String refreshToken;
+
     @Column(name = "token_type", length = 50)
     String tokenType;
 
     @Column(name = "expiration_date", length = 50)
     LocalDateTime expirationDate;
+
+    @Column(name = "refresh_expiration_date")
+    LocalDateTime refreshExpirationDate;
 
     @Column(name = "is_mobile", columnDefinition = "TINYINT(1)")
     boolean isMobile;
@@ -38,11 +44,11 @@ public class Token {
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
