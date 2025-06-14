@@ -3,7 +3,10 @@ import com.example.shopapp.dtos.request.RefreshTokenDTO;
 import com.example.shopapp.dtos.request.UserDTO;
 import com.example.shopapp.dtos.request.UserLoginDTO;
 import com.example.shopapp.dtos.responses.LoginResponse;
+import com.example.shopapp.dtos.responses.UserListResponse;
 import com.example.shopapp.dtos.responses.UserResponse;
+import com.example.shopapp.exceptions.DataNotFoundException;
+import com.example.shopapp.exceptions.InvalidPasswordException;
 import com.example.shopapp.models.Token;
 import com.example.shopapp.models.User;
 import com.example.shopapp.service.ITokenService;
@@ -13,11 +16,16 @@ import com.example.shopapp.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +37,87 @@ public class UserController {
     private final LocalizationUtils localizationUtils;
     private final ITokenService tokenService;
 
+
+    @PutMapping("/block/{userId}/{active}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Object> blockOrEnable(
+            @PathVariable Integer userId,
+            @PathVariable int active
+    ) {
+        try {
+            userService.blockOrEnable(userId, active > 0);
+            String message = active > 0 ? "User enabled successfully." : "User blocked successfully.";
+            return ResponseEntity.ok(Map.of("message", message));
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "User not found."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+
+    @PutMapping("/reset-password/{userId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Object> resetPassword(@Valid @PathVariable Integer userId) {
+        try {
+            String newPassword = generateRandomPassword();
+            userService.resetPassword(userId, newPassword);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Password reset successfully",
+                    "newPassword", newPassword
+            ));
+        } catch (InvalidPasswordException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid password"));
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+
+    //use a custom random password generator with letters + digits:
+    private String generateRandomPassword() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 12; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return sb.toString();
+    }
+
+
+
+    @GetMapping("")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Object> getAllUser(
+            @RequestParam(defaultValue = "", required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit
+    ){
+        try {
+            // Tạo Pageable từ thông tin trang và giới hạn
+            PageRequest pageRequest = PageRequest.of(
+                    page, limit,
+                    //Sort.by("createdAt").descending()
+                    Sort.by("id").ascending()
+            );
+            Page<UserResponse> userPage = userService.findAll(keyword, pageRequest)
+                    .map(UserResponse::fromUser);
+
+            // Lấy tổng số trang
+            int totalPages = userPage.getTotalPages();
+            List<UserResponse> userResponses = userPage.getContent();
+            return ResponseEntity.ok(UserListResponse
+                    .builder()
+                    .users(userResponses)
+                    .totalPages(totalPages)
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
     @PostMapping("/refreshToken")
     public ResponseEntity<LoginResponse> refreshToken(

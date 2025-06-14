@@ -38,6 +38,7 @@ public class JwtTokenUtil {
         Map<String, Object> claims = new HashMap<>();
         claims.put("phoneNumber", user.getPhoneNumber());
         claims.put("userId", user.getId());
+        claims.put("role", "ROLE_" + user.getRole().getName().toUpperCase());
 
         try {
             return Jwts.builder()
@@ -90,7 +91,11 @@ public class JwtTokenUtil {
         String phoneNumber = getPhoneNumberFromToken(token);
         Token existingToken = tokenRepository.findByToken(token);
 
-        if (existingToken == null || Boolean.TRUE.equals(existingToken.getRevoked())) {
+        if (existingToken == null ||
+                Boolean.TRUE.equals(existingToken.getRevoked())
+                || Boolean.FALSE.equals(existingToken.getUser().getIsActive())
+        )
+        {
             return false;
         }
 

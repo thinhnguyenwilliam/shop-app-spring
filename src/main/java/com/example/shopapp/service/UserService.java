@@ -3,6 +3,7 @@ package com.example.shopapp.service;
 import com.example.shopapp.components.JwtTokenUtil;
 import com.example.shopapp.dtos.request.UserDTO;
 import com.example.shopapp.exceptions.DataNotFoundException;
+import com.example.shopapp.exceptions.InvalidPasswordException;
 import com.example.shopapp.models.Role;
 import com.example.shopapp.models.Token;
 import com.example.shopapp.models.User;
@@ -12,11 +13,15 @@ import com.example.shopapp.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Service
@@ -29,6 +34,29 @@ public class UserService implements IUserService
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
+
+    @Override
+    @Transactional
+    public void blockOrEnable(Integer userId, Boolean active) throws DataNotFoundException {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        existingUser.setIsActive(active);
+        userRepository.save(existingUser);
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(Integer userId, String newPassword)
+            throws InvalidPasswordException, DataNotFoundException {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        existingUser.setPassword(encodedPassword);
+        userRepository.save(existingUser);
+        //reset password => clear token
+        List<Token> tokens = tokenRepository.findByUser(existingUser);
+        tokenRepository.deleteAll(tokens);
+    }
 
     @Override
     @Transactional
@@ -135,6 +163,11 @@ public class UserService implements IUserService
     public User getUserDetailsFromRefreshToken(String refreshToken) throws Exception {
         Token existingToken = tokenRepository.findByRefreshToken(refreshToken);
         return getUserDetailsFromToken(existingToken.getToken());
+    }
+
+    @Override
+    public Page<User> findAll(String keyword, Pageable pageable) {
+        return userRepository.findAll(keyword, pageable);
     }
 
 

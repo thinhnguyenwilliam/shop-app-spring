@@ -2,9 +2,17 @@ package com.example.shopapp.service;
 
 import com.example.shopapp.dtos.request.UserDTO;
 import com.example.shopapp.exceptions.DataNotFoundException;
+import com.example.shopapp.exceptions.InvalidPasswordException;
 import com.example.shopapp.models.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface IUserService {
+    void blockOrEnable(Integer userId, Boolean active) throws DataNotFoundException;
+
+    void resetPassword(Integer userId, String newPassword)
+            throws InvalidPasswordException, DataNotFoundException ;
+
     User createUser(UserDTO userDTO) throws DataNotFoundException;
 
     String login(String phoneNumber, String password, Integer roleId);
@@ -14,4 +22,7 @@ public interface IUserService {
     User updateUser(Integer userId, UserDTO userDTO);
 
     User getUserDetailsFromRefreshToken(String token) throws Exception;
+
+    Page<User> findAll(String keyword, Pageable pageable) throws Exception;
+
 }

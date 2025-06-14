@@ -17,9 +17,11 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -27,7 +29,7 @@ import java.util.Map;
 public class JwtTokenFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtil jwtTokenUtil;
-    private final Map<String, String> bypassTokens = new HashMap<>();
+    private final Multimap<String, String> bypassTokens = ArrayListMultimap.create();
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Value("${api.prefix}")
@@ -37,19 +39,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     public void initBypassTokens() {
         bypassTokens.put("/" + apiPrefix + "/products/**", "GET");
         bypassTokens.put("/" + apiPrefix + "/categories", "GET");
-        bypassTokens.put("/" + apiPrefix + "/users/register", "POST");
-        bypassTokens.put("/" + apiPrefix + "/users/login", "POST");
+        bypassTokens.put("/" + apiPrefix + "/users/**", "POST");
         bypassTokens.put("/" + apiPrefix + "/roles", "GET");
         bypassTokens.put("/" + apiPrefix + "/healthcheck/health", "GET");
-        bypassTokens.put("/" + apiPrefix + "/redis/**", "GET"); // key is duplicate
-        //bypassTokens.put("/" + apiPrefix + "/redis/**", "POST");
-
+        bypassTokens.put("/" + apiPrefix + "/redis/**", "GET");
+        bypassTokens.put("/" + apiPrefix + "/redis/**", "POST");
         bypassTokens.put("/" + apiPrefix + "/actuator/**", "GET");
-
-        bypassTokens.put("/" + apiPrefix + "/users/refreshToken", "POST");
-
-        //bypassTokens.put("/" + apiPrefix + "/orders/**", "GET");
-        //bypassTokens.put("/" + apiPrefix + "/orders", "GET");
     }
 
     @Override
@@ -63,7 +58,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             String path = request.getServletPath();
             String method = request.getMethod();
 
-            for (Map.Entry<String, String> entry : bypassTokens.entrySet()) {
+            for (Map.Entry<String, String> entry : bypassTokens.entries()) {
                 String bypassPath = entry.getKey();
                 String bypassMethod = entry.getValue();
 
