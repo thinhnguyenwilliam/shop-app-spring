@@ -1,4 +1,4 @@
-package com.example.shopapp.service;
+package com.example.shopapp.service.impl;
 
 import com.example.shopapp.dtos.request.CartItemDTO;
 import com.example.shopapp.dtos.request.OrderDTO;
@@ -7,6 +7,7 @@ import com.example.shopapp.models.*;
 import com.example.shopapp.repositories.OrderRepository;
 import com.example.shopapp.repositories.ProductRepository;
 import com.example.shopapp.repositories.UserRepository;
+import com.example.shopapp.service.IOrderService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;

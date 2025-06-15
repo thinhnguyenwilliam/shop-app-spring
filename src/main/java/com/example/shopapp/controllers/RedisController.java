@@ -1,6 +1,6 @@
 package com.example.shopapp.controllers;
 
-import com.example.shopapp.service.RedisService;
+import com.example.shopapp.service.impl.RedisService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

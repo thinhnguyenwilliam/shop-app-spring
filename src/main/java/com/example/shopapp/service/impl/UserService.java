@@ -1,4 +1,4 @@
-package com.example.shopapp.service;
+package com.example.shopapp.service.impl;
 
 import com.example.shopapp.components.JwtTokenUtil;
 import com.example.shopapp.dtos.request.UserDTO;
@@ -10,6 +10,7 @@ import com.example.shopapp.models.User;
 import com.example.shopapp.repositories.RoleRepository;
 import com.example.shopapp.repositories.TokenRepository;
 import com.example.shopapp.repositories.UserRepository;
+import com.example.shopapp.service.IUserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;

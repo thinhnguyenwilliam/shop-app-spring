@@ -1,9 +1,8 @@
-package com.example.shopapp.service;
+package com.example.shopapp.service.impl;
 
 import com.example.shopapp.dtos.request.ProductDTO;
 import com.example.shopapp.dtos.request.ProductImageDTO;
 import com.example.shopapp.dtos.responses.ProductResponse;
-import com.example.shopapp.exceptions.DataNotFoundException;
 import com.example.shopapp.exceptions.InvalidParamException;
 import com.example.shopapp.models.Category;
 import com.example.shopapp.models.Product;
@@ -11,6 +10,7 @@ import com.example.shopapp.models.ProductImage;
 import com.example.shopapp.repositories.CategoryRepository;
 import com.example.shopapp.repositories.ProductImageRepository;
 import com.example.shopapp.repositories.ProductRepository;
+import com.example.shopapp.service.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

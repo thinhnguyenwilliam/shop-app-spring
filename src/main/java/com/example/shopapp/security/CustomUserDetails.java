@@ -2,6 +2,7 @@ package com.example.shopapp.security;
 
 import com.example.shopapp.models.User;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+@Getter
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
@@ -48,4 +50,5 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return Boolean.TRUE.equals(user.getIsActive());
     }
+
 }

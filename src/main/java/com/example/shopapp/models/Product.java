@@ -1,10 +1,12 @@
 package com.example.shopapp.models;
 
 import com.example.shopapp.listener.ProductListener;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -55,4 +57,8 @@ public class Product extends BaseEntity
             fetch = FetchType.LAZY)
     private List<ProductImage> productImages;
 
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Comment> comments = new ArrayList<>();
 }

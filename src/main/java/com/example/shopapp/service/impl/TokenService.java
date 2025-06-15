@@ -1,10 +1,11 @@
-package com.example.shopapp.service;
+package com.example.shopapp.service.impl;
 
 import com.example.shopapp.components.JwtTokenUtil;
 import com.example.shopapp.exceptions.DataNotFoundException;
 import com.example.shopapp.models.Token;
 import com.example.shopapp.models.User;
 import com.example.shopapp.repositories.TokenRepository;
+import com.example.shopapp.service.ITokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

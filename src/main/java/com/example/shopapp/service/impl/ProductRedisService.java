@@ -1,6 +1,7 @@
-package com.example.shopapp.service;
+package com.example.shopapp.service.impl;
 
 import com.example.shopapp.dtos.responses.ProductResponse;
+import com.example.shopapp.service.IProductRedisService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

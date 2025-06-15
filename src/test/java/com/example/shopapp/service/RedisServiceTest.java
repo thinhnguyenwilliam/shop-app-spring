@@ -1,5 +1,6 @@
 package com.example.shopapp.service;
 
+import com.example.shopapp.service.impl.RedisService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

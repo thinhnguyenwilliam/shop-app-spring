@@ -1,4 +1,4 @@
-package com.example.shopapp.service;
+package com.example.shopapp.service.impl;
 
 import com.example.shopapp.dtos.request.OrderDetailDTO;
 import com.example.shopapp.models.Order;
@@ -7,6 +7,7 @@ import com.example.shopapp.models.Product;
 import com.example.shopapp.repositories.OrderDetailRepository;
 import com.example.shopapp.repositories.OrderRepository;
 import com.example.shopapp.repositories.ProductRepository;
+import com.example.shopapp.service.IOrderDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

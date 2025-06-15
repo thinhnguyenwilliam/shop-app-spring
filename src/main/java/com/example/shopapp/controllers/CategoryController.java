@@ -3,7 +3,7 @@ package com.example.shopapp.controllers;
 
 import com.example.shopapp.dtos.request.CategoryDTO;
 import com.example.shopapp.models.Category;
-import com.example.shopapp.service.CategoryService;
+import com.example.shopapp.service.impl.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

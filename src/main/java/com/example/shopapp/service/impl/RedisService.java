@@ -1,4 +1,4 @@
-package com.example.shopapp.service;
+package com.example.shopapp.service.impl;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
