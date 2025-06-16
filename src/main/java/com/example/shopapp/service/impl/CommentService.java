@@ -61,7 +61,7 @@ public class CommentService implements ICommentService {
         List<Comment> comments = commentRepository.findByUserIdAndProductId(userId, productId);
         return comments.stream()
                 .map(CommentResponse::fromComment)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -69,7 +69,7 @@ public class CommentService implements ICommentService {
         List<Comment> comments = commentRepository.findByProductId(productId);
         return comments.stream()
                 .map(CommentResponse::fromComment)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }

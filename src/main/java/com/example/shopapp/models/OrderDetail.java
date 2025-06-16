@@ -20,6 +20,11 @@ public class OrderDetail {
     Integer id;
 
     @ManyToOne
+    @JoinColumn(name = "coupon_id")
+    @JsonBackReference
+    Coupon coupon;
+
+    @ManyToOne
     @JoinColumn(name = "order_id")
     @JsonBackReference
     Order order;

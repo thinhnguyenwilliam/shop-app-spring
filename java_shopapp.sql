@@ -5,6 +5,21 @@ DROP DATABASE shopapp_java;
 DESC users;
 DESC categories;
 
+
+INSERT INTO coupons(id, code) VALUES (1, 'HEAVEN');
+INSERT INTO coupons(id, code) VALUES (2, 'DISCOUNT20');
+
+
+INSERT INTO coupon_conditions (id, coupon_id, attribute, operator, value, discount_amount)
+VALUES (1, 1, 'minimum_amount', '>', '100', 10);
+
+INSERT INTO coupon_conditions (id, coupon_id, attribute, operator, value, discount_amount)
+VALUES (2, 1, 'applicable_date', 'BETWEEN', '2023-12-25', 5);
+
+INSERT INTO coupon_conditions (id, coupon_id, attribute, operator, value, discount_amount)
+VALUES (3, 2, 'minimum_amount', '>', '200', 20);
+
+
 -- ✅ Corrected UPDATE to set thumbnail from first image
 -- chạy sau khi update trong code java
 SET SQL_SAFE_UPDATES = 0; -- Run this before your update:

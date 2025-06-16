@@ -47,20 +47,29 @@ public class CommentController {
             @PathVariable("id") Long commentId,
             @Valid @RequestBody CommentDTO commentDTO
     ) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
         try {
-            User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (!Objects.equals(loginUser.getId(), commentDTO.getUserId())) {
-                return ResponseEntity.badRequest().body("You cannot update another user's comment");
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+            User loginUser = userDetails.getUser();
+
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            if (!Objects.equals(loginUser.getId(), commentDTO.getUserId()) && !isAdmin) {
+                return ResponseEntity.badRequest().body(Map.of("error_update_comment", "You cannot update another user's comment"));
             }
+
             commentService.updateComment(commentId, commentDTO);
             return ResponseEntity.ok(Map.of("message", "Update comment successfully"));
-        } catch (Exception e) {
-            // Handle and log the exception
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "An error occurred during comment update."));
 
+        } catch (Exception e) {
+            log.error("Comment update error", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error_update_comment", "An error occurred during comment update."));
         }
     }
+
 
 
     @PostMapping("")

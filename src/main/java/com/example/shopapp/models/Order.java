@@ -1,6 +1,7 @@
 package com.example.shopapp.models;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,7 +29,12 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<OrderDetail> orderDetails;
+    List<OrderDetail> orderDetails;
+
+    @ManyToOne
+    @JoinColumn(name = "coupon_id")
+    @JsonBackReference
+    Coupon coupon;
 
     @Column(name = "fullname",length = 100)
     String fullName;

@@ -45,6 +45,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         bypassTokens.put("/" + apiPrefix + "/redis/**", "GET");
         bypassTokens.put("/" + apiPrefix + "/redis/**", "POST");
         bypassTokens.put("/" + apiPrefix + "/actuator/**", "GET");
+        bypassTokens.put("/" + apiPrefix + "/comments/**", "GET");
+        bypassTokens.put("/" + apiPrefix + "/coupons/**", "GET");
     }
 
     @Override

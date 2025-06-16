@@ -69,7 +69,8 @@ public class WebSecurityConfig {
                                 "/" + apiPrefix + "/users/refreshToken",
                                 "/" + apiPrefix + "/redis/**",
                                 "/" + apiPrefix + "/actuator/**",
-                                "/" + apiPrefix + "/comments/**"
+                                "/" + apiPrefix + "/comments/**",
+                                "/" + apiPrefix + "/coupons/**"
                         ).permitAll()
                         //
                                 .requestMatchers(
