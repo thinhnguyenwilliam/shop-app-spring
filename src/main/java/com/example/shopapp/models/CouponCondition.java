@@ -37,6 +37,11 @@ public class CouponCondition {
     private BigDecimal discountAmount;
 }
 /*
+
+1 coupon has many order
+1 coupon has many order_detail
+1 coupon has many coupon_condition
+
 INSERT INTO coupons(id, code) VALUES (1, 'HEAVEN');
 INSERT INTO coupons(id, code) VALUES (2, 'DISCOUNT20');
 
