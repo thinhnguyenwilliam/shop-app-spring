@@ -15,12 +15,13 @@ public class CategoryService implements ICategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public void createCategory(CategoryDTO categoryDTO) {
+    public Category createCategory(CategoryDTO categoryDTO) {
         Category newCategory = Category.builder()
                 .name(categoryDTO.getName())
                 .build();
 
         categoryRepository.save(newCategory);
+        return newCategory;
     }
 
     @Override

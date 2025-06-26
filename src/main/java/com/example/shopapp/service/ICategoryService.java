@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ICategoryService
 {
-    void createCategory(CategoryDTO categoryDTO);
+    Category createCategory(CategoryDTO categoryDTO);
     Category getCategoryById(Integer id);
     List<Category> getAllCategories();
     void updateCategory(Integer id, CategoryDTO categoryDTO);

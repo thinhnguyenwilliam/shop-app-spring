@@ -38,7 +38,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @PostConstruct
     public void initBypassTokens() {
         bypassTokens.put("/" + apiPrefix + "/products/**", "GET");
-        bypassTokens.put("/" + apiPrefix + "/categories", "GET");
+        bypassTokens.put("/" + apiPrefix + "/categories/**", "GET");
+        bypassTokens.put("/" + apiPrefix + "/categories/**", "POST");
         bypassTokens.put("/" + apiPrefix + "/users/**", "POST");
         bypassTokens.put("/" + apiPrefix + "/roles", "GET");
         bypassTokens.put("/" + apiPrefix + "/healthcheck/health", "GET");
