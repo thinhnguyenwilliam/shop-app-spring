@@ -1,6 +1,7 @@
 package com.example.shopapp.service.impl;
 
 import com.example.shopapp.components.JwtTokenUtil;
+import com.example.shopapp.components.LocalizationUtils;
 import com.example.shopapp.dtos.request.UserDTO;
 import com.example.shopapp.exceptions.DataNotFoundException;
 import com.example.shopapp.exceptions.InvalidPasswordException;
@@ -17,12 +18,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -35,6 +38,7 @@ public class UserService implements IUserService
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
+    private final LocalizationUtils localizationUtils;
 
     @Override
     @Transactional
@@ -100,34 +104,57 @@ public class UserService implements IUserService
     }
 
     @Override
-    public String login(String phoneNumber, String password, Integer roleId) {
-        User user = userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new RuntimeException("User not found for phone number: " + phoneNumber));
+    public String login(String phoneNumber, String password, String email, Integer roleId) {
+        Optional<User> optionalUser = Optional.empty();
+        String subject = null;
 
-        // Check password (assume it's stored securely with encoder)
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid password.");
+        // 1. Try to find user by phone number
+        if (phoneNumber != null && !phoneNumber.isBlank()) {
+            optionalUser = userRepository.findByPhoneNumber(phoneNumber);
+            subject = phoneNumber;
         }
 
-        // Validate role
-        roleRepository.findById(roleId)
-                .orElseThrow(() -> new RuntimeException("Role not found for id: " + roleId));
+        // 2. If not found by phone, try by email
+        if (optionalUser.isEmpty() && email != null && !email.isBlank()) {
+            optionalUser = userRepository.findByEmail(email);
+            subject = email;
+        }
+
+        // 3. If still not found, throw exception
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+
+        User user = optionalUser.get();
+
+        if(Boolean.FALSE.equals(user.getIsActive())) {
+            throw new RuntimeException("User is not active");
+        }
+
+        // 4. Validate role
+        roleRepository.findById(roleId).orElseThrow(
+                () -> new RuntimeException("Role not found for id: " + roleId)
+        );
 
         if (!roleId.equals(user.getRole().getId())) {
             throw new RuntimeException("User does not have the specified role.");
         }
 
-        // Optional: You can check if it's a normal account (non-social login)
-        boolean isNormalUser = (user.getFacebookAccountId() == 0 && user.getGoogleAccountId() == 0);
+        // 5. Validate password (only for non-social logins)
+        boolean isNormalUser = user.getFacebookAccountId() == 0 && user.getGoogleAccountId() == 0;
 
+        if (isNormalUser && !passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Passwords do not match");
+        }
+
+        // 6. Authenticate the user
         if (isNormalUser) {
-            // Authenticate using Spring Security
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(phoneNumber, password);
+                    new UsernamePasswordAuthenticationToken(subject, password);
             authenticationManager.authenticate(authenticationToken);
         }
 
-        // Generate and return JWT token
+        // 7. Generate and return JWT token
         return jwtTokenUtil.generateToken(user);
     }
 

@@ -37,14 +37,20 @@ management:
 
 logging:
   level:
+    org.apache.kafka: ERROR
+    org.springframework.kafka: ERROR
     org.springframework.security: DEBUG  # Set log level for a Spring framework
-    com.yourcompany.yourapp: INFO  # Example: your app's base package
+    com.example.shopapp: INFO  # Example: your app's base package
   config: classpath:logback-spring.xml  # Custom logback configuration file
 
 
 # Application properties
 spring:
   kafka:
+    listener:
+      auto-startup: false
+    admin:
+      auto-create: false # If you are not using Kafka’s AdminClient at all, you can disable it by adding:
     bootstrap-servers: ${KAFKA_BROKER_SERVER:localhost}:${KAFKA_BROKER_PORT:9092}
 
     properties:

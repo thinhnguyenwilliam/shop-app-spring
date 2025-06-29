@@ -15,6 +15,8 @@ import java.util.List;
 public class CustomUserDetails implements UserDetails {
 
     private final User user;
+    private final String loginIdentifier; // Phone or email used at login
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -24,11 +26,12 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String getPassword() {
         return user.getPassword();
+
     }
 
     @Override
     public String getUsername() {
-        return user.getPhoneNumber();
+        return loginIdentifier; // ✅ return what the user logged in with
     }
 
     @Override
@@ -50,5 +53,4 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return Boolean.TRUE.equals(user.getIsActive());
     }
-
 }

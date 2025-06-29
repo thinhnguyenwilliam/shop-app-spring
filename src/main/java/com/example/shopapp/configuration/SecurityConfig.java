@@ -23,12 +23,12 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return phoneNumber -> {
-            User user = userRepository.findByPhoneNumber(phoneNumber)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found for phone number: " + phoneNumber));
-            return new CustomUserDetails(user);
-        };
+        return login -> userRepository.findByPhoneNumber(login)
+                .or(() -> userRepository.findByEmail(login))
+                .map(user -> new CustomUserDetails(user, login))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with phone number or email: " + login));
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

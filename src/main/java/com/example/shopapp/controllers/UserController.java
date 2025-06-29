@@ -13,6 +13,7 @@ import com.example.shopapp.service.ITokenService;
 import com.example.shopapp.service.IUserService;
 import com.example.shopapp.components.LocalizationUtils;
 import com.example.shopapp.utils.MessageKeys;
+import com.example.shopapp.utils.ValidationUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -146,30 +149,50 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<Object> createUser(
-            @Valid
-            @RequestBody UserDTO userDTO,
+            @Valid @RequestBody UserDTO userDTO,
             BindingResult result
     ) {
-        try{
-            if (result.hasErrors()) {
-                List<String> errors = result.getFieldErrors()
-                        .stream()
-                        .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
-                        .toList();
-                return ResponseEntity.badRequest().body("Validation errors: " + String.join(", ", errors));
-            }
-            if(!userDTO.getPassword().equals(userDTO.getRetypePassword()))
-                return ResponseEntity.badRequest().body("Passwords do not match");
+        try {
+            // Map to hold all validation errors
+            Map<String, String> errors = new HashMap<>();
 
+            // 1. Add errors from @Valid annotation-based validation
+            result.getFieldErrors().forEach(fieldError -> errors.put(fieldError.getField(), fieldError.getDefaultMessage()));
+
+            // 2. Add custom manual validation errors
+            if (!ValidationUtils.isValidEmail(userDTO.getEmail())) {
+                errors.put("email", "Invalid email format");
+            }
+
+            if (!ValidationUtils.isValidPhoneNumber(userDTO.getPhoneNumber())) {
+                errors.put("phoneNumber", "Invalid phone number format");
+            }
+
+            if (!ValidationUtils.isValidPassword(userDTO.getPassword())) {
+                errors.put("password", "Password must be at least 3 characters");
+            }
+
+            if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
+                errors.put("retypePassword", "Passwords do not match");
+            }
+
+            // 3. Return error response if any exist
+            if (!errors.isEmpty()) {
+                return ResponseEntity.badRequest().body(errors);
+            }
+
+            // 4. Proceed with creating user
             User createdUser = userService.createUser(userDTO);
             return ResponseEntity.ok(createdUser);
 
-        }catch(Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(
                     Map.of("message", "Register failed: " + e.getMessage())
             );
         }
     }
+
+
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
@@ -187,6 +210,7 @@ public class UserController {
             String token = userService.login(
                     userLoginDTO.getPhoneNumber(),
                     userLoginDTO.getPassword(),
+                    userLoginDTO.getEmail(),
                     roleId
             );
 
