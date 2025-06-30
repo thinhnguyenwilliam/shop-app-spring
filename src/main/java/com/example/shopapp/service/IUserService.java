@@ -1,9 +1,11 @@
 package com.example.shopapp.service;
 
 import com.example.shopapp.dtos.request.UserDTO;
+import com.example.shopapp.dtos.request.UserLoginDTO;
 import com.example.shopapp.exceptions.DataNotFoundException;
 import com.example.shopapp.exceptions.InvalidPasswordException;
 import com.example.shopapp.models.User;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -25,4 +27,5 @@ public interface IUserService {
 
     Page<User> findAll(String keyword, Pageable pageable) throws Exception;
 
+    String loginSocial(UserLoginDTO userLoginDTO) throws Exception;
 }

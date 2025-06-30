@@ -1,6 +1,5 @@
 package com.example.shopapp.configuration;
 
-import com.example.shopapp.models.User;
 import com.example.shopapp.repositories.UserRepository;
 import com.example.shopapp.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;

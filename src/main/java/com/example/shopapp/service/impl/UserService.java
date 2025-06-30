@@ -3,6 +3,7 @@ package com.example.shopapp.service.impl;
 import com.example.shopapp.components.JwtTokenUtil;
 import com.example.shopapp.components.LocalizationUtils;
 import com.example.shopapp.dtos.request.UserDTO;
+import com.example.shopapp.dtos.request.UserLoginDTO;
 import com.example.shopapp.exceptions.DataNotFoundException;
 import com.example.shopapp.exceptions.InvalidPasswordException;
 import com.example.shopapp.models.Role;
@@ -80,8 +81,8 @@ public class UserService implements IUserService
         }
 
         // Determine if this is a normal (non-social) user
-        boolean isNormalAccount = (userDTO.getFacebookAccountId() == null || userDTO.getFacebookAccountId() == 0)
-                && (userDTO.getGoogleAccountId() == null || userDTO.getGoogleAccountId() == 0);
+        boolean isNormalAccount = (userDTO.getFacebookAccountId() == null || userDTO.getFacebookAccountId().isEmpty())
+                && (userDTO.getGoogleAccountId() == null || userDTO.getGoogleAccountId().isEmpty());
 
         String rawPassword = userDTO.getPassword();
         String encodedPassword = isNormalAccount ? passwordEncoder.encode(rawPassword) : rawPassword;
@@ -141,7 +142,7 @@ public class UserService implements IUserService
         }
 
         // 5. Validate password (only for non-social logins)
-        boolean isNormalUser = user.getFacebookAccountId() == 0 && user.getGoogleAccountId() == 0;
+        boolean isNormalUser = user.getFacebookAccountId().isEmpty() && user.getGoogleAccountId().isEmpty();
 
         if (isNormalUser && !passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Passwords do not match");
@@ -197,6 +198,46 @@ public class UserService implements IUserService
     public Page<User> findAll(String keyword, Pageable pageable) {
         return userRepository.findAll(keyword, pageable);
     }
+
+    @Override
+    public String loginSocial(UserLoginDTO userLoginDTO) throws Exception {
+        // 1. Get user role (usually "USER")
+        Role roleUser = roleRepository.findByName("USER")
+                .orElseThrow(() -> new RuntimeException("Role 'USER' not found"));
+
+        // 2. Validate the Google account ID
+        if (!userLoginDTO.isGoogleAccountIdValid()) {
+            throw new IllegalArgumentException("Invalid Google account ID.");
+        }
+
+        // 3. Find existing user by Google account ID
+        Optional<User> optionalUser = userRepository.findByGoogleAccountId(userLoginDTO.getGoogleAccountId());
+
+        User user = optionalUser.orElseGet(() -> {
+            // 4. If user doesn't exist, create a new one
+            User newUser = User.builder()
+                    .phoneNumber("")
+                    .fullName(Optional.ofNullable(userLoginDTO.getFullName()).orElse(""))
+                    .email(Optional.ofNullable(userLoginDTO.getEmail()).orElse(""))
+                    .profileImage(Optional.ofNullable(userLoginDTO.getProfileImage()).orElse(""))
+                    .role(roleUser)
+                    .googleAccountId(userLoginDTO.getGoogleAccountId())
+                    .password("") // No password needed for social login
+                    .isActive(true)
+                    .build();
+
+            return userRepository.save(newUser);
+        });
+
+        // 5. Check if user is active
+        if (!Boolean.TRUE.equals(user.getIsActive())) {
+            throw new RuntimeException("User account is inactive or locked.");
+        }
+
+        // 6. Generate and return JWT token
+        return jwtTokenUtil.generateToken(user);
+    }
+
 
 
 }

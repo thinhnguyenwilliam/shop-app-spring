@@ -67,6 +67,8 @@ public class WebSecurityConfig {
                                 "/" + apiPrefix + "/users/login",
                                 "/" + apiPrefix + "/users/register",
                                 "/" + apiPrefix + "/users/refreshToken",
+                                "/" + apiPrefix + "/users/auth/social-login",
+                                "/" + apiPrefix + "/users/auth/social/callback",
                                 "/" + apiPrefix + "/redis/**",
                                 "/" + apiPrefix + "/actuator/**",
                                 "/" + apiPrefix + "/comments/**",

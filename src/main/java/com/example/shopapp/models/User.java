@@ -17,7 +17,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User extends BaseEntity {
+public class User extends BaseEntity
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
@@ -33,6 +34,9 @@ public class User extends BaseEntity {
 
     String email;
 
+    @Column(name = "profile_image", length = 255)
+    String profileImage;
+
     @Column(name = "password", length = 200)
     String password;
 
@@ -43,10 +47,10 @@ public class User extends BaseEntity {
     Date dateOfBirth;
 
     @Column(name = "facebook_account_id")
-    Integer facebookAccountId;
+    String facebookAccountId;
 
     @Column(name = "google_account_id")
-    Integer googleAccountId;
+    String googleAccountId;
 
     @ManyToOne
     @JoinColumn(name = "role_id")

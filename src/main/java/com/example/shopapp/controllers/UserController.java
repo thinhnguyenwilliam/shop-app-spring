@@ -3,12 +3,14 @@ import com.example.shopapp.dtos.request.RefreshTokenDTO;
 import com.example.shopapp.dtos.request.UserDTO;
 import com.example.shopapp.dtos.request.UserLoginDTO;
 import com.example.shopapp.dtos.responses.LoginResponse;
+import com.example.shopapp.dtos.responses.ResponseObject;
 import com.example.shopapp.dtos.responses.UserListResponse;
 import com.example.shopapp.dtos.responses.UserResponse;
 import com.example.shopapp.exceptions.DataNotFoundException;
 import com.example.shopapp.exceptions.InvalidPasswordException;
 import com.example.shopapp.models.Token;
 import com.example.shopapp.models.User;
+import com.example.shopapp.service.IAuthService;
 import com.example.shopapp.service.ITokenService;
 import com.example.shopapp.service.IUserService;
 import com.example.shopapp.components.LocalizationUtils;
@@ -27,10 +29,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -39,6 +38,60 @@ public class UserController {
     private final IUserService userService;
     private final LocalizationUtils localizationUtils;
     private final ITokenService tokenService;
+    private final IAuthService authService;
+
+    // Step 1: Generate Google Auth URL (Angular frontend calls this)
+    @GetMapping("/auth/social-login")
+    public ResponseEntity<String> socialAuth(@RequestParam("login_type") String loginType) {
+        String url = authService.generateAuthUrl(loginType);
+        return ResponseEntity.ok(url);
+    }
+
+    // Step 2: Handle the Google callback (user is redirected here after login)
+    @GetMapping("/auth/social/callback")
+    public ResponseEntity<ResponseObject> callback(
+            @RequestParam("code") String code,
+            @RequestParam("login_type") String loginType,
+            HttpServletRequest request
+    ) throws Exception {
+        UserLoginDTO userLoginDTO = authService.authenticateSocialUser(code, loginType);
+        return this.loginSocial(userLoginDTO, request);
+    }
+
+    // Step 3: Login user and return token (you can customize this further)
+    private ResponseEntity<ResponseObject> loginSocial(
+            @Valid UserLoginDTO userLoginDTO,
+            HttpServletRequest request
+    ) throws Exception {
+        // Gọi hàm loginSocial từ UserService cho đăng nhập mạng xã hội
+        String token = userService.loginSocial(userLoginDTO);
+
+        // Xử lý token và thông tin người dùng
+        String userAgent = request.getHeader("User-Agent");
+        User userDetail = userService.getUserDetailsFromToken(token);
+        Token jwtToken = tokenService.addToken(userDetail, token, isMobileDevice(userAgent));
+
+        // Tạo đối tượng LoginResponse
+        LoginResponse loginResponse = LoginResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY))
+                .token(jwtToken.getToken())
+                .tokenType(jwtToken.getTokenType())
+                .refreshToken(jwtToken.getRefreshToken())
+                .username(userDetail.getPhoneNumber())
+                .roles(List.of("ROLE_" + userDetail.getRole().getName().toUpperCase()))
+                .id(userDetail.getId())
+                .build();
+
+        // Trả về phản hồi
+        return ResponseEntity.ok().body(
+                ResponseObject.builder()
+                        .message("Login successfully")
+                        .data(loginResponse)
+                        .status(HttpStatus.OK)
+                        .build()
+        );
+    }
+
 
 
     @PutMapping("/block/{userId}/{active}")
@@ -195,18 +248,16 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
+    public ResponseEntity<ResponseObject> login(
             @Valid @RequestBody UserLoginDTO userLoginDTO,
             HttpServletRequest request
     ) {
         try {
             int roleId = (userLoginDTO.getRoleId() != null) ? userLoginDTO.getRoleId() : 2;
 
-            // Detect device type using User-Agent header
             String userAgent = request.getHeader("User-Agent");
             boolean isMobile = isMobileDevice(userAgent);
 
-            // Perform login and generate token
             String token = userService.login(
                     userLoginDTO.getPhoneNumber(),
                     userLoginDTO.getPassword(),
@@ -214,39 +265,42 @@ public class UserController {
                     roleId
             );
 
-            // Fetch user from token and store token with device context
             User user = userService.getUserDetailsFromToken(token);
             Token jwtToken = tokenService.addToken(user, token, isMobile);
 
             String message = localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY);
 
-            return ResponseEntity.ok(
-                    LoginResponse.builder()
-                            .message(message)
-                            .token(token)
-                            .tokenType(jwtToken.getTokenType())
-                            .refreshToken(jwtToken.getRefreshToken())
-                            .username(user.getPhoneNumber())
-                            .roles(List.of("ROLE_" + user.getRole().getName().toUpperCase()))
-                            .id(user.getId())
-                            .build()
-            );
+            LoginResponse loginResponse = LoginResponse.builder()
+                    .message(message)
+                    .token(token)
+                    .tokenType(jwtToken.getTokenType())
+                    .refreshToken(jwtToken.getRefreshToken())
+                    .username(user.getPhoneNumber())
+                    .roles(List.of("ROLE_" + user.getRole().getName().toUpperCase()))
+                    .id(user.getId())
+                    .build();
+
+            return ResponseEntity.ok(ResponseObject.builder()
+                    .message("Login successful")
+                    .status(HttpStatus.OK)
+                    .data(loginResponse)
+                    .build());
 
         } catch (Exception ex) {
-            // Handle failure and localize a message
             String errorMessage = localizationUtils.getLocalizedMessage(
                     MessageKeys.LOGIN_FAILED,
                     new Object[]{ex.getMessage()}
             );
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(LoginResponse.builder()
+                    .body(ResponseObject.builder()
                             .message(errorMessage)
-                            .token(null)
-                            .build()
-                    );
+                            .status(HttpStatus.UNAUTHORIZED)
+                            .data(null)
+                            .build());
         }
     }
+
 
     private boolean isMobileDevice(String userAgent) {
         if (userAgent == null) return false;

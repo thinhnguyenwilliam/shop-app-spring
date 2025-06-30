@@ -46,12 +46,14 @@ CREATE TABLE users (
     updated_at DATETIME,
     is_active TINYINT(1) DEFAULT 1,
     date_of_birth DATE,
-    facebook_account_id INT DEFAULT 0,
-    google_account_id INT DEFAULT 0,
+    facebook_account_id VARCHAR(100) DEFAULT '',
+    google_account_id VARCHAR(100) DEFAULT '',
 	email VARCHAR(100) DEFAULT ''
 );
 ALTER TABLE users
 ADD COLUMN retype_password VARCHAR(255) NOT NULL DEFAULT '';
+
+ALTER TABLE users ADD COLUMN profile_image VARCHAR(255) DEFAULT '';
 
 
 CREATE TABLE tokens (
@@ -70,7 +72,6 @@ CREATE TABLE tokens (
 ALTER TABLE tokens
 ADD COLUMN refresh_token VARCHAR(255),
 ADD COLUMN refresh_expiration_date DATETIME;
-
 
 ALTER TABLE tokens
 ADD COLUMN is_mobile TINYINT(1) DEFAULT 0;  -- TINYINT is a 1-byte integer data type.
