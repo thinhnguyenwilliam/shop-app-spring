@@ -27,4 +27,6 @@ public interface UserRepository extends JpaRepository<User,Integer>
     Optional<User> findByEmail(String email);
 
     Optional<User> findByGoogleAccountId(String googleAccountId);
+
+    Optional<User> findByFacebookAccountId(String facebookAccountId);
 }

@@ -205,38 +205,61 @@ public class UserService implements IUserService
         Role roleUser = roleRepository.findByName("USER")
                 .orElseThrow(() -> new RuntimeException("Role 'USER' not found"));
 
-        // 2. Validate the Google account ID
-        if (!userLoginDTO.isGoogleAccountIdValid()) {
-            throw new IllegalArgumentException("Invalid Google account ID.");
+        User user;
+
+        if (userLoginDTO.isGoogleAccountIdValid()) {
+            // 2. Try to find existing user by Google account ID
+            Optional<User> optionalUser = userRepository.findByGoogleAccountId(userLoginDTO.getGoogleAccountId());
+
+            user = optionalUser.orElseGet(() -> {
+                // 3. Create new user if not found
+                User newUser = User.builder()
+                        .phoneNumber("")
+                        .fullName(Optional.ofNullable(userLoginDTO.getFullName()).orElse(""))
+                        .email(Optional.ofNullable(userLoginDTO.getEmail()).orElse(""))
+                        .profileImage(Optional.ofNullable(userLoginDTO.getProfileImage()).orElse(""))
+                        .role(roleUser)
+                        .googleAccountId(userLoginDTO.getGoogleAccountId())
+                        .password("") // No password for social login
+                        .isActive(true)
+                        .build();
+
+                return userRepository.save(newUser);
+            });
+
+        } else if (userLoginDTO.isFacebookAccountIdValid()) {
+            // 2. Try to find existing user by Facebook account ID
+            Optional<User> optionalUser = userRepository.findByFacebookAccountId(userLoginDTO.getFacebookAccountId());
+
+            user = optionalUser.orElseGet(() -> {
+                // 3. Create new user if not found
+                User newUser = User.builder()
+                        .phoneNumber("")
+                        .fullName(Optional.ofNullable(userLoginDTO.getFullName()).orElse(""))
+                        .email(Optional.ofNullable(userLoginDTO.getEmail()).orElse(""))
+                        .profileImage(Optional.ofNullable(userLoginDTO.getProfileImage()).orElse(""))
+                        .role(roleUser)
+                        .facebookAccountId(userLoginDTO.getFacebookAccountId())
+                        .password("")
+                        .isActive(true)
+                        .build();
+
+                return userRepository.save(newUser);
+            });
+
+        } else {
+            throw new IllegalArgumentException("No valid social account ID found.");
         }
 
-        // 3. Find existing user by Google account ID
-        Optional<User> optionalUser = userRepository.findByGoogleAccountId(userLoginDTO.getGoogleAccountId());
-
-        User user = optionalUser.orElseGet(() -> {
-            // 4. If user doesn't exist, create a new one
-            User newUser = User.builder()
-                    .phoneNumber("")
-                    .fullName(Optional.ofNullable(userLoginDTO.getFullName()).orElse(""))
-                    .email(Optional.ofNullable(userLoginDTO.getEmail()).orElse(""))
-                    .profileImage(Optional.ofNullable(userLoginDTO.getProfileImage()).orElse(""))
-                    .role(roleUser)
-                    .googleAccountId(userLoginDTO.getGoogleAccountId())
-                    .password("") // No password needed for social login
-                    .isActive(true)
-                    .build();
-
-            return userRepository.save(newUser);
-        });
-
-        // 5. Check if user is active
+        // 4. Check if user is active
         if (!Boolean.TRUE.equals(user.getIsActive())) {
             throw new RuntimeException("User account is inactive or locked.");
         }
 
-        // 6. Generate and return JWT token
+        // 5. Generate and return JWT token
         return jwtTokenUtil.generateToken(user);
     }
+
 
 
 
